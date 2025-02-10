@@ -1,11 +1,13 @@
 use std::io::BufRead;
 
+use crate::language::Language;
+
 /// Represents a single file and its related information
 #[derive(Debug)]
 pub struct File {
     pub path: std::path::PathBuf,
     pub lines: usize,
-    language: Option<String>,
+    pub language: Language,
 }
 
 impl File {
@@ -19,13 +21,11 @@ impl File {
         let lines = reader.lines().count();
 
         // Try to determine the language from the file extension
-        let language = path
-            .extension()
-            .and_then(|ext| ext.to_str())
-            .map(|s| s.to_lowercase());
+        let path = path.to_path_buf();
+        let language = Language::from(&path);
 
         Ok(File {
-            path: path.to_path_buf(),
+            path,
             lines,
             language,
         })

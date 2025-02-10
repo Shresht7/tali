@@ -34,7 +34,13 @@ impl std::fmt::Display for ScanResults {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         writeln!(f, "")?;
         for file in &self.files {
-            writeln!(f, "{}: {}", file.path.display(), file.lines)?;
+            writeln!(
+                f,
+                "[{}] {}: {}",
+                file.language,
+                file.path.display(),
+                file.lines,
+            )?;
         }
         writeln!(f, "")?;
         writeln!(f, "Total: {}", self.total)?;
