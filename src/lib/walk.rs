@@ -10,8 +10,8 @@ pub fn walk(dir: &std::path::Path) -> Vec<std::path::PathBuf> {
         // Try to read the current directory; If that fails, ignore the error and continue
         let entries = match std::fs::read_dir(&current_dir) {
             Ok(entries) => entries,
-            Err(_) => {
-                // res.push(Err(e));
+            Err(e) => {
+                eprintln!("Error reading directory {}: {}", current_dir.display(), e);
                 continue;
             }
         };
@@ -19,8 +19,12 @@ pub fn walk(dir: &std::path::Path) -> Vec<std::path::PathBuf> {
         for entry_result in entries {
             let entry = match entry_result {
                 Ok(entry) => entry,
-                Err(_) => {
-                    // res.push(Err(e));
+                Err(e) => {
+                    eprintln!(
+                        "Error reading directory entry {}: {}",
+                        current_dir.display(),
+                        e
+                    );
                     continue;
                 }
             };
@@ -28,8 +32,8 @@ pub fn walk(dir: &std::path::Path) -> Vec<std::path::PathBuf> {
             let path = entry.path();
             let metadata = match std::fs::symlink_metadata(&path) {
                 Ok(m) => m,
-                Err(_) => {
-                    // res.push(Err(e));
+                Err(e) => {
+                    eprintln!("Error reading metadata {}: {}", path.display(), e);
                     continue;
                 }
             };
