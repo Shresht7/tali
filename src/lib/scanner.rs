@@ -1,9 +1,47 @@
-use crate::file::File;
+use std::collections::HashMap;
+
+use crate::{file::File, language::Language};
 
 #[derive(Debug)]
 pub struct ScanResults {
     pub total: usize,
     pub files: Vec<File>,
+}
+
+impl ScanResults {
+    /// Groups the files by language and returns a [`HashMap`]
+    fn group_by_language(&self) -> HashMap<Language, Vec<&File>> {
+        let mut groups = HashMap::new();
+
+        for file in &self.files {
+            groups
+                .entry(file.language.clone())
+                .or_insert_with(Vec::new)
+                .push(file)
+        }
+
+        groups
+    }
+
+    pub fn display(&self) -> String {
+        let mut res = String::new();
+        let mut total_no_of_files = 0;
+        res.push_str("Language\tFiles\tLines\n\n");
+        for (language, files) in self.group_by_language() {
+            res.push_str(&format!(
+                "{}\t{}\t{}\n",
+                language,
+                files.len(),
+                files.iter().fold(0, |mut acc, curr| {
+                    acc += curr.lines;
+                    acc
+                })
+            ));
+            total_no_of_files += files.len();
+        }
+        res.push_str(&format!("\nTotal {} {}", total_no_of_files, self.total));
+        res
+    }
 }
 
 pub fn scan(dir: &str) -> std::io::Result<ScanResults> {
@@ -32,18 +70,7 @@ pub fn scan(dir: &str) -> std::io::Result<ScanResults> {
 
 impl std::fmt::Display for ScanResults {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "")?;
-        for file in &self.files {
-            writeln!(
-                f,
-                "[{}] {}: {}",
-                file.language,
-                file.path.display(),
-                file.lines,
-            )?;
-        }
-        writeln!(f, "")?;
-        writeln!(f, "Total: {}", self.total)?;
+        writeln!(f, "{}", self.display())?;
         Ok(())
     }
 }
