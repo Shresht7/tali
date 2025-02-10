@@ -4,7 +4,7 @@ use std::io::BufRead;
 #[derive(Debug)]
 pub struct File {
     path: std::path::PathBuf,
-    lines: usize,
+    pub lines: usize,
     language: Option<String>,
 }
 

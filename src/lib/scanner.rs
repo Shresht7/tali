@@ -12,15 +12,20 @@ pub fn scan(dir: &str) -> std::io::Result<ScanResults> {
 
     // Collect the file info in a vector
     let mut files = Vec::new();
+    let mut total = 0;
 
     // Iterate over all the results
     for result in walker {
         match result {
-            Ok(entry) if entry.path().is_file() => files.push(File::from_path(entry.path())?), // Record the file
+            Ok(entry) if entry.path().is_file() => {
+                let file = File::from_path(entry.path())?;
+                total += file.lines;
+                files.push(file);
+            }
             Ok(_) => {}                          // Ignore directories and symlinks
             Err(e) => eprintln!("Error: {}", e), // Report errors
         }
     }
 
-    Ok(ScanResults { files, total: 0 })
+    Ok(ScanResults { files, total })
 }
