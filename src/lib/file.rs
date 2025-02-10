@@ -27,7 +27,7 @@ impl File {
 
         // Try to determine the language from the file extension
         let path = path.to_path_buf();
-        let language = Language::from(&path);
+        let language = Language::from_path(&path);
 
         Ok(File {
             path,

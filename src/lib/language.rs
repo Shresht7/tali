@@ -1,73 +1,60 @@
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum Language {
-    Text,
-    Rust,
-    Markdown,
-    TOML,
-    JSON,
-    JavaScript,
-    TypeScript,
-    Go,
-    C,
-    CPP,
-    CSharp,
-    Python,
-    Java,
-    HTML,
-    CSS,
-    YAML,
-    Unknown(String),
+/// Describe a macro to generate the [`Language`] enum
+macro_rules! define_languages {
+    ( $( $language:ident from [$($extension:literal),*] $(as $display:literal)? ),* $(,)? ) => {
+        #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+        pub enum Language {
+            $($language),*,
+            Unknown(String),
+        }
+
+        impl Language {
+            pub fn from_extension(ext: &str) -> Language {
+                let ext = ext.to_lowercase();
+                match ext.as_str() {
+                    $( $( $extension => Language::$language, )* )*
+                    _ => Language::Unknown(ext),
+                }
+            }
+
+            pub fn from_path(path: &std::path::PathBuf) -> Language {
+                let extension = match path.extension().and_then(|ext| ext.to_str()) {
+                    Some(ext) => ext,
+                    None => return Language::Text,
+                };
+                Language::from_extension(extension)
+            }
+        }
+
+        impl std::fmt::Display for Language {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+                match self {
+                    $(Language::$language => write!(f, "{}", define_languages!(@display $language $(, $display)?))),*,
+                    Language::Unknown(x) => write!(f, ".{}", x),
+                }
+            }
+        }
+    };
+
+    (@display $language:ident) => { stringify!($language) };
+    (@display $language:ident, $display:literal) => { $display };
 }
 
-impl From<&std::path::PathBuf> for Language {
-    fn from(path: &std::path::PathBuf) -> Self {
-        let extension = match path.extension().and_then(|ext| ext.to_str()) {
-            Some(ext) => ext,
-            None => return Language::Text,
-        };
-
-        match extension {
-            "txt" | "text" => Language::Text,
-            "rs" => Language::Rust,
-            "md" | "markdown" => Language::Markdown,
-            "toml" => Language::TOML,
-            "json" | "jsonc" => Language::JSON,
-            "js" => Language::JavaScript,
-            "ts" => Language::TypeScript,
-            "go" => Language::Go,
-            "c" => Language::C,
-            "cpp" => Language::CPP,
-            "cs" => Language::CSharp,
-            "py" => Language::Python,
-            "java" => Language::Java,
-            "html" | "htm" => Language::HTML,
-            "css" => Language::CSS,
-            "yaml" | "yml" => Language::YAML,
-            ext => Language::Unknown(ext.to_string()),
-        }
-    }
-}
-
-impl std::fmt::Display for Language {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Language::Text => write!(f, "Text"),
-            Language::Rust => write!(f, "Rust"),
-            Language::Markdown => write!(f, "Markdown"),
-            Language::TOML => write!(f, "TOML"),
-            Language::JSON => write!(f, "JSON"),
-            Language::JavaScript => write!(f, "JavaScript"),
-            Language::TypeScript => write!(f, "TypeScript"),
-            Language::Go => write!(f, "Go"),
-            Language::C => write!(f, "C"),
-            Language::CPP => write!(f, "C++"),
-            Language::CSharp => write!(f, "C#"),
-            Language::Python => write!(f, "Python"),
-            Language::Java => write!(f, "Java"),
-            Language::HTML => write!(f, "HTML"),
-            Language::CSS => write!(f, "CSS"),
-            Language::YAML => write!(f, "YAML"),
-            Language::Unknown(x) => write!(f, "Unknown: {}", x),
-        }
-    }
+// Holy cow, macros are witchcraft
+define_languages! {
+    Text from ["txt", "text"],
+    Rust from ["rs"],
+    Markdown from ["md", "markdown"],
+    TOML from ["toml"],
+    JSON from ["json", "jsonc"],
+    JavaScript from ["js"],
+    TypeScript from ["ts"],
+    Go from ["go"],
+    C from ["c"],
+    CPP from ["cpp"] as "C++",
+    CSharp from ["cs"] as "C#",
+    Python from ["py"],
+    Java from ["java"],
+    HTML from ["html", "htm"],
+    CSS from ["css"],
+    YAML from ["yaml", "yml"]
 }
