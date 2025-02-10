@@ -1,6 +1,10 @@
 /// Describe a macro to generate the [`Language`] enum
 macro_rules! define_languages {
-    ( $( $language:ident from [$($extension:literal),*] $(as $display:literal)? ),* $(,)? ) => {
+    ( $(
+        $language:ident from [$($extension:literal),*]
+        $(with RGB($colorR:expr, $colorG:expr, $colorB:expr))?
+        $(as $display:literal)?
+    ),* $(,)? ) => {
         #[derive(Debug, Clone, PartialEq, Eq, Hash)]
         pub enum Language {
             $($language),*,
@@ -23,6 +27,13 @@ macro_rules! define_languages {
                 };
                 Language::from_extension(extension)
             }
+
+            pub fn color(&self) -> (u8, u8, u8) {
+                match self {
+                    $(Language::$language => define_languages!(@color $($colorR, $colorG, $colorB)?),)*
+                    Language::Unknown(_) => (127, 127, 127),
+                }
+            }
         }
 
         impl std::fmt::Display for Language {
@@ -35,26 +46,29 @@ macro_rules! define_languages {
         }
     };
 
+    (@color $r:expr, $g:expr, $b:expr) => { ($r, $g, $b) };
+    (@color) => { (255, 255, 255) };
+
     (@display $language:ident) => { stringify!($language) };
     (@display $language:ident, $display:literal) => { $display };
 }
 
 // Holy cow, macros are witchcraft
 define_languages! {
-    Text from ["txt", "text"],
-    Rust from ["rs"],
-    Markdown from ["md", "markdown"],
-    TOML from ["toml"],
-    JSON from ["json", "jsonc"],
-    JavaScript from ["js"],
-    TypeScript from ["ts"],
-    Go from ["go"],
-    C from ["c"],
-    CPP from ["cpp"] as "C++",
-    CSharp from ["cs"] as "C#",
-    Python from ["py"],
-    Java from ["java"],
-    HTML from ["html", "htm"],
-    CSS from ["css"],
-    YAML from ["yaml", "yml"]
+    Text        from ["txt", "text"]     with RGB(255, 255, 255),
+    Rust        from ["rs"]              with RGB(255, 165, 0),
+    Markdown    from ["md", "markdown"]  with RGB(0, 102, 204),
+    TOML        from ["toml"]            with RGB(120, 120, 120),
+    JSON        from ["json", "jsonc"]   with RGB(255, 224, 102),
+    JavaScript  from ["js"]              with RGB(247, 223, 30),
+    TypeScript  from ["ts"]              with RGB(0, 122, 204),
+    Go          from ["go"]              with RGB(0, 173, 216),
+    C           from ["c"]               with RGB(70, 70, 240),
+    CPP         from ["cpp"]             with RGB(45, 45, 255)       as "C++",
+    CSharp      from ["cs"]              with RGB(98, 164, 228)      as "C#",
+    Python      from ["py"]              with RGB(53, 114, 165),
+    Java        from ["java"]            with RGB(176, 114, 25),
+    HTML        from ["html", "htm"]     with RGB(227, 76, 38),
+    CSS         from ["css"]             with RGB(86, 61, 124),
+    YAML        from ["yaml", "yml"]     with RGB(255, 255, 0)
 }

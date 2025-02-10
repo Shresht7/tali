@@ -30,7 +30,7 @@ impl ScanResults {
         for (language, files) in self.group_by_language() {
             res.push_str(&format!(
                 "{}\t{}\t{}\n",
-                language,
+                color(&language, &language.to_string()),
                 files.len(),
                 files.iter().fold(0, |mut acc, curr| {
                     acc += curr.lines;
@@ -42,6 +42,12 @@ impl ScanResults {
         res.push_str(&format!("\nTotal {} {}", total_no_of_files, self.total));
         res
     }
+}
+
+/// A helper function to color a string according to the language's color
+fn color(language: &Language, text: &str) -> String {
+    let (r, g, b) = language.color();
+    format!("\u{001b}[38;2;{};{};{}m{}\u{001b}[0m", r, g, b, text)
 }
 
 pub fn scan(dir: &str) -> std::io::Result<ScanResults> {
