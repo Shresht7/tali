@@ -17,14 +17,13 @@ pub(crate) enum Language {
     CSS,
     YAML,
     Unknown(String),
-    None,
 }
 
 impl From<&std::path::PathBuf> for Language {
     fn from(path: &std::path::PathBuf) -> Self {
         let extension = match path.extension().and_then(|ext| ext.to_str()) {
             Some(ext) => ext,
-            None => return Language::None,
+            None => return Language::Text,
         };
 
         match extension {
@@ -69,7 +68,6 @@ impl std::fmt::Display for Language {
             Language::CSS => write!(f, "CSS"),
             Language::YAML => write!(f, "YAML"),
             Language::Unknown(x) => write!(f, "Unknown: {}", x),
-            Language::None => write!(f, "None"),
         }
     }
 }
