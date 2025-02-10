@@ -3,7 +3,7 @@ use std::io::BufRead;
 /// Represents a single file and its related information
 #[derive(Debug)]
 pub struct File {
-    path: std::path::PathBuf,
+    pub path: std::path::PathBuf,
     pub lines: usize,
     language: Option<String>,
 }

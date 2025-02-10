@@ -29,3 +29,15 @@ pub fn scan(dir: &str) -> std::io::Result<ScanResults> {
 
     Ok(ScanResults { files, total })
 }
+
+impl std::fmt::Display for ScanResults {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        writeln!(f, "")?;
+        for file in &self.files {
+            writeln!(f, "{}: {}", file.path.display(), file.lines)?;
+        }
+        writeln!(f, "")?;
+        writeln!(f, "Total: {}", self.total)?;
+        Ok(())
+    }
+}
