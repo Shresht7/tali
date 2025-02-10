@@ -18,7 +18,12 @@ impl File {
         let reader = std::io::BufReader::new(file);
 
         // Count the number of lines in the file
-        let lines = reader.lines().count();
+        let mut lines = 0;
+        for line in reader.lines() {
+            if line.is_ok() {
+                lines += 1;
+            }
+        }
 
         // Try to determine the language from the file extension
         let path = path.to_path_buf();
