@@ -5,6 +5,7 @@ use std::io::BufRead;
 pub struct File {
     path: std::path::PathBuf,
     lines: usize,
+    language: Option<String>,
 }
 
 impl File {
@@ -17,9 +18,16 @@ impl File {
         // Count the number of lines in the file
         let lines = reader.lines().count();
 
+        // Try to determine the language from the file extension
+        let language = path
+            .extension()
+            .and_then(|ext| ext.to_str())
+            .map(|s| s.to_lowercase());
+
         Ok(File {
             path: path.to_path_buf(),
             lines,
+            language,
         })
     }
 }
