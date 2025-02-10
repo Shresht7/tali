@@ -13,18 +13,10 @@ fn main() -> std::io::Result<()> {
     // Parse the command-line arguments
     let args = Args::parse();
 
-    // Build a directory walker that respects `.gitignore` and other hidden files
-    let walker = ignore::WalkBuilder::new(&args.directory).build();
+    // Perform the scanning operation
+    let result = loc::scan(&args.directory);
 
-    // Iterate over all the results
-    for result in walker {
-        match result {
-            Ok(entry) if entry.path().is_file() => {
-                println!("{}", entry.path().display());
-            }
-            Ok(_) => {}                          // Ignore directories and symlinks
-            Err(e) => eprintln!("Error: {}", e), // Report errors
-        }
-    }
+    // Print the results
+    println!("{:#?}", result);
     Ok(())
 }
