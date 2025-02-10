@@ -14,7 +14,7 @@ fn main() -> std::io::Result<()> {
     let args = Args::parse();
 
     // Perform the scanning operation
-    let result = loc::scan(&args.directory);
+    let result = loc::scan(&args.directory)?;
 
     // Print the results
     println!("{:#?}", result);
