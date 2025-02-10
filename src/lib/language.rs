@@ -1,5 +1,5 @@
 #[derive(Debug)]
-pub(crate) enum Language {
+pub enum Language {
     Text,
     Rust,
     Markdown,
