@@ -3,7 +3,5 @@ name = "loc"
 version = "0.1.0"
 edition = "2021"
 
-[lib]
-path = "src/lib/mod.rs"
-
 [dependencies]
+ignore = "0.4.23"
