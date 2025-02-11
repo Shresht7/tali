@@ -4,7 +4,6 @@ use crate::{file::File, language::Language, table::Alignment, table::Table};
 
 #[derive(Debug)]
 pub struct ScanResults {
-    pub total: usize,
     pub files: Vec<File>,
 }
 
@@ -40,11 +39,7 @@ impl ScanResults {
         }
         let mut res = Table::from(&res, '\t');
         res.with_header(vec!["Language".into(), "Files".into(), "Lines".into()])
-            .with_footer(vec![
-                "Total".into(),
-                total_no_of_files.to_string(),
-                self.total.to_string(),
-            ])
+            .with_footer(vec!["Total".into(), total_no_of_files.to_string()])
             .with_alignments(vec![Alignment::Left, Alignment::Center, Alignment::Right]);
         res.display()
     }
@@ -79,6 +74,5 @@ pub fn scan<P: AsRef<std::path::Path>>(paths: &Vec<P>) -> std::io::Result<ScanRe
         }
     }
 
-    let total = 0;
-    Ok(ScanResults { files, total })
+    Ok(ScanResults { files })
 }
