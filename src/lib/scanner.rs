@@ -127,31 +127,31 @@ impl Display {
     }
 
     /// Sets whether to show file path
-    pub fn path(mut self, yes: bool) -> Self {
+    pub fn path(&mut self, yes: bool) -> &mut Self {
         self.path = yes;
         self
     }
 
     /// Sets whether to show the line count
-    pub fn lines(mut self, yes: bool) -> Self {
+    pub fn lines(&mut self, yes: bool) -> &mut Self {
         self.lines = yes;
         self
     }
 
     /// Sets whether to show the word count
-    pub fn words(mut self, yes: bool) -> Self {
+    pub fn words(&mut self, yes: bool) -> &mut Self {
         self.words = yes;
         self
     }
 
     /// Sets whether to show the character count
-    pub fn chars(mut self, yes: bool) -> Self {
+    pub fn chars(&mut self, yes: bool) -> &mut Self {
         self.chars = yes;
         self
     }
 
     /// Sets whether to show byte count
-    pub fn bytes(mut self, yes: bool) -> Self {
+    pub fn bytes(&mut self, yes: bool) -> &mut Self {
         self.bytes = yes;
         self
     }
