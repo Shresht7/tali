@@ -2,25 +2,50 @@ use std::io::BufRead;
 
 use crate::language::Language;
 
-/// Represents a single file and it's information
+/// Represents a scanned file and its computed metrics.
+///
+/// The metrics include:
+/// - `lines`: The number of lines (as determined by [`BufRead::lines`]).
+/// - `words`: The number of words (splitting each line on whitespace).
+/// - `chars`: The total number of Unicode characters (excluding newline characters).
+/// - `bytes`: The total number of bytes (queried from file [`metadata`][std::fs::Metadata]).
+/// - `language`: The [`language`][Language] detected from the file extension.
 #[derive(Debug)]
 pub struct File {
+    /// The path to the file
     pub path: std::path::PathBuf,
+    /// The number of lines in the file
     pub lines: usize,
+    /// The number of words in the file
     pub words: usize,
+    /// The number of unicode characters in the file
     pub chars: usize,
-    pub bytes: usize,
+    /// The size of the file in bytes
+    pub bytes: u64,
+    /// The language used in this file
     pub language: Language,
 }
 
 impl File {
-    /// Opens and scans the file at the given path, counting lines, words, characters, and bytes.
+    /// Scans the file at the given [`path`][std::path::Path] and computes various [metrics][File].
+    ///
+    /// This function opens the file, reads it once line by line,
+    /// and computes the number of `lines`, `words`, and `characters`. The `byte count` is obtained
+    /// from the file [`metadata`][std::fs::Metadata]. The file’s [`language`][Language] is determined from its extension.
+    ///
+    /// # Arguments
+    ///
+    /// * `path` - A reference to a path of the file to scan.
+    ///
+    /// # Errors
+    ///
+    /// Returns an [`std::io::Error`] if opening the file, reading from it, or obtaining its metadata fails.
     pub fn scan<P: AsRef<std::path::Path>>(path: P) -> std::io::Result<File> {
         // Open file
         let file = std::fs::File::open(&path)?;
 
         // Retrieve the number of bytes from the file-metadata
-        let bytes = file.metadata()?.len() as usize;
+        let bytes = file.metadata()?.len();
 
         // Create a buffered reader
         let reader = std::io::BufReader::new(file);
@@ -50,5 +75,54 @@ impl File {
             bytes,
             language,
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::io::Write;
+
+    use super::*;
+
+    /// Helper to create a temporary file with the given contents
+    /// The file is written to the OS temporary directory with a fixed name.
+    fn create_temp_file(contents: &str) -> std::path::PathBuf {
+        let mut path = std::env::temp_dir();
+        path.push("temp_test_file_scan.txt");
+        let mut file = std::fs::File::create(&path).expect("Failed to create temporary file");
+        file.write_all(contents.as_bytes())
+            .expect("Failed to write to temporary file");
+        path
+    }
+
+    /// Helper to remove the temporary file
+    fn cleanup<P: AsRef<std::path::Path>>(path: P) {
+        let _ = std::fs::remove_file(path);
+    }
+
+    #[test]
+    fn test_scan_file_metrics() {
+        // Prepare a sample file.
+        // The contents has two lines:
+        // "Hello World" and "Rust is awesome"
+        // Without the newline at the end of the file, the counts are:
+        //  lines: 2
+        //  words: 2 + 3 = 5
+        //  chars: 11 + 15 = 26
+        //  The byte count will equal the length of the file contents in bytes
+        let contents = "Hello World\nRust is awesome";
+        let temp_path = create_temp_file(contents);
+
+        // Scan the file
+        let metrics = File::scan(&temp_path).expect("Failed to scan file");
+
+        // Check the metrics
+        assert_eq!(metrics.lines, 2, "Line count mismatch");
+        assert_eq!(metrics.words, 5, "Word count mismatch");
+        assert_eq!(metrics.chars, 26, "Character count mismatch");
+        assert_eq!(metrics.bytes, contents.len() as u64, "Byte count mismatch");
+
+        // Perform cleanup
+        cleanup(&temp_path);
     }
 }
