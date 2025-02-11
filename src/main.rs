@@ -1,34 +1,11 @@
 use clap::Parser;
 
-/// A structural representation of the command-line arguments
-#[derive(Debug, Parser)]
-#[command(author, version, about)]
-struct Args {
-    /// The path to scan (defaults to the current directory)
-    #[arg(default_value = ".")]
-    paths: Vec<std::path::PathBuf>,
-
-    /// Show line count
-    #[clap(short, long)]
-    lines: bool,
-
-    /// Show word count
-    #[clap(short, long)]
-    words: bool,
-
-    /// Show character count
-    #[clap(short, long)]
-    chars: bool,
-
-    /// Show byte count
-    #[clap(short, long)]
-    bytes: bool,
-}
+mod cli;
 
 /// The main entry-point of the application
 fn main() -> std::io::Result<()> {
     // Parse the command-line arguments
-    let args = Args::parse();
+    let args = cli::Args::parse();
     // Run the main logic with the given command-line arguments
     if let Err(e) = run(&args) {
         eprintln!("Error: {}", e);
@@ -38,7 +15,7 @@ fn main() -> std::io::Result<()> {
 }
 
 /// Run the main logic of the application
-fn run(args: &Args) -> std::io::Result<()> {
+fn run(args: &cli::Args) -> std::io::Result<()> {
     let results = loc::scan(&args.paths)?;
 
     let mut display = loc::Display::default();
