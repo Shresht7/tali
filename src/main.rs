@@ -23,7 +23,8 @@ fn main() -> std::io::Result<()> {
 
 /// Run the main logic of the application
 fn run(args: &Args) -> std::io::Result<()> {
-    let results = loc::scan(&args.paths);
-    println!("{:?}", results);
+    let results = loc::scan(&args.paths)?;
+    let display = loc::Display::default();
+    println!("{}", display.display(results));
     Ok(())
 }
