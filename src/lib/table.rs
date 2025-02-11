@@ -1,3 +1,5 @@
+use crate::helpers::ansi;
+
 #[derive(Debug, Clone)]
 pub enum Alignment {
     Left,
@@ -32,7 +34,7 @@ impl Table {
 
         for row in &rows {
             for (i, cell) in row.iter().enumerate() {
-                col_widths[i] = std::cmp::max(col_widths[i], cell.len());
+                col_widths[i] = std::cmp::max(col_widths[i], ansi::visible_width(cell));
             }
         }
 
@@ -48,11 +50,13 @@ impl Table {
     }
 
     pub fn with_header(&mut self, header: Vec<String>) -> &mut Self {
+        self.update_col_widths(&header);
         self.header = header;
         self
     }
 
     pub fn with_footer(&mut self, footer: Vec<String>) -> &mut Self {
+        self.update_col_widths(&footer);
         self.footer = footer;
         self
     }
@@ -64,7 +68,7 @@ impl Table {
 
     fn update_col_widths(&mut self, row: &Vec<String>) -> &mut Self {
         for (i, cell) in row.iter().enumerate() {
-            self.col_widths[i] = std::cmp::max(self.col_widths[i], cell.len());
+            self.col_widths[i] = std::cmp::max(self.col_widths[i], ansi::visible_width(cell));
         }
         self
     }
@@ -76,11 +80,18 @@ impl Table {
     }
 
     fn format_cell(&self, text: &str, width: usize, alignment: Option<&Alignment>) -> String {
-        match alignment {
-            Some(Alignment::Left) | None => format!("{:<width$}", text, width = width),
-            Some(Alignment::Center) => format!("{:^width$}", text, width = width),
-            Some(Alignment::Right) => format!("{:>width$}", text, width = width),
-        }
+        let visible_width = ansi::visible_width(text);
+        let width = if visible_width < width {
+            text.len() + (width - visible_width)
+        } else {
+            width
+        };
+        let res = match alignment {
+            Some(&Alignment::Left) | None => format!("{:<width$}", text, width = width),
+            Some(&Alignment::Center) => format!("{:^width$}", text, width = width),
+            Some(&Alignment::Right) => format!("{:>width$}", text, width = width),
+        };
+        res
     }
 
     fn format_row(&self, row: &Vec<String>) -> String {
@@ -89,15 +100,17 @@ impl Table {
             res.push_str(&self.format_cell(cell, self.col_widths[i], self.alignments.get(i)));
             res.push_str(&self.separator);
         }
+        res.push_str("\n");
         res
     }
 
     pub fn display(&self) -> String {
         let mut res = String::new();
+        res.push_str(&self.format_row(&self.header));
         for row in &self.rows {
             res.push_str(&self.format_row(row));
-            res.push_str("\n");
         }
+        res.push_str(&self.format_row(&self.footer));
         res
     }
 }

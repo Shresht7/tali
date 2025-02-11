@@ -26,7 +26,6 @@ impl ScanResults {
     pub fn display(&self) -> String {
         let mut res = String::new();
         let mut total_no_of_files = 0;
-        res.push_str("Language\tFiles\tLines\n");
         for (language, files) in self.group_by_language() {
             res.push_str(&format!(
                 "{}\t{}\t{}\n",
@@ -39,7 +38,6 @@ impl ScanResults {
             ));
             total_no_of_files += files.len();
         }
-        res.push_str(&format!("\nTotal\t{}\t{}", total_no_of_files, self.total));
         let mut res = Table::from(&res, '\t');
         res.with_header(vec!["Language".into(), "Files".into(), "Lines".into()])
             .with_footer(vec![
