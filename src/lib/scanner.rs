@@ -12,7 +12,7 @@ use crate::{
 // -------
 
 /// Scan the given [`paths`][std::path::Path] and record [file information][File] like line count, word count etc.
-pub fn scan<P: AsRef<std::path::Path>>(paths: &Vec<P>) -> std::io::Result<ScanResults> {
+pub fn scan<P: AsRef<std::path::Path>>(paths: &[P]) -> std::io::Result<ScanResults> {
     let mut files = Vec::new();
 
     // Instantiate and configure the file-scanner
