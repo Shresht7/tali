@@ -2,17 +2,18 @@ use std::io::BufRead;
 
 use crate::language::Language;
 
-/// Represents a single file and its related information
-#[derive(Debug)]
-pub struct File {
-    pub path: std::path::PathBuf,
-    pub lines: usize,
-    pub language: Language,
+#[derive(Default)]
+pub struct FileScanner {
+    lines: bool,
+    bytes: bool,
 }
 
-impl File {
-    /// Parse a [`File`] from the given [`path`][std::path::Path]
-    pub fn from_path<P: AsRef<std::path::Path>>(path: P) -> std::io::Result<File> {
+impl FileScanner {
+    pub fn new(lines: bool, bytes: bool) -> FileScanner {
+        FileScanner { lines, bytes }
+    }
+
+    pub fn scan<P: AsRef<std::path::Path>>(&self, path: P) -> std::io::Result<FileScanResult> {
         // Create a buffered reader to read the file-contents
         let file = std::fs::File::open(&path)?;
         let reader = std::io::BufReader::new(file);
@@ -29,10 +30,19 @@ impl File {
         let path = path.as_ref().to_path_buf();
         let language = Language::from_path(&path);
 
-        Ok(File {
+        Ok(FileScanResult {
             path,
             lines,
             language,
         })
     }
+}
+
+/// Represents a single file and its related information
+#[derive(Debug)]
+pub struct FileScanResult {
+    pub path: std::path::PathBuf,
+    pub lines: usize,
+    // pub bytes: u64,
+    pub language: Language,
 }

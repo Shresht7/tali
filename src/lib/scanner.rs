@@ -1,6 +1,11 @@
 use std::collections::HashMap;
 
-use crate::{file::File, language::Language, table::Alignment, table::Table};
+use crate::{
+    file::FileScanner,
+    language::Language,
+    table::{Alignment, Table},
+    FileScanResult,
+};
 
 // -------
 // SCANNER
@@ -10,10 +15,14 @@ use crate::{file::File, language::Language, table::Alignment, table::Table};
 pub fn scan<P: AsRef<std::path::Path>>(paths: &Vec<P>) -> std::io::Result<ScanResults> {
     let mut files = Vec::new();
 
+    // Instantiate and configure the file-scanner
+    let scanner = FileScanner::new(true, true);
+
     for path in paths {
         if path.as_ref().is_file() {
             // Parse the file and add to the collection
-            files.push(File::from_path(path)?)
+
+            files.push(scanner.scan(path)?)
         } else {
             // Build a directory walker that respects `.gitignore` and other hidden files
             let walker = ignore::WalkBuilder::new(&path).build();
@@ -23,7 +32,7 @@ pub fn scan<P: AsRef<std::path::Path>>(paths: &Vec<P>) -> std::io::Result<ScanRe
                 match result {
                     Ok(entry) if entry.path().is_file() => {
                         // Parse the file and add it to the collection
-                        let file = File::from_path(entry.path())?;
+                        let file = scanner.scan(entry.path())?;
                         files.push(file);
                     }
 
@@ -43,12 +52,12 @@ pub fn scan<P: AsRef<std::path::Path>>(paths: &Vec<P>) -> std::io::Result<ScanRe
 
 #[derive(Debug)]
 pub struct ScanResults {
-    pub files: Vec<File>,
+    pub files: Vec<FileScanResult>,
 }
 
 impl ScanResults {
     /// Groups the files by language and returns a [`HashMap`]
-    fn group_by_language(&self) -> HashMap<Language, Vec<&File>> {
+    fn group_by_language(&self) -> HashMap<Language, Vec<&FileScanResult>> {
         let mut groups = HashMap::new();
 
         for file in &self.files {
