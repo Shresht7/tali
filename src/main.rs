@@ -4,9 +4,9 @@ use clap::Parser;
 #[derive(Debug, Parser)]
 #[command(author, version, about)]
 struct Args {
-    /// The directory to scan (defaults to the current directory)
+    /// The path to scan (defaults to the current directory)
     #[arg(default_value = ".")]
-    directory: String,
+    path: std::path::PathBuf,
 }
 
 /// The main entry-point of the application
@@ -24,7 +24,7 @@ fn main() -> std::io::Result<()> {
 /// Run the main logic of the application
 fn run(args: &Args) -> std::io::Result<()> {
     // Perform the scanning operation
-    let result = loc::scan(&args.directory)?;
+    let result = loc::scan(&args.path)?;
 
     // Print the results
     println!("{}", result.display());

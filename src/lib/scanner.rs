@@ -56,7 +56,7 @@ fn color(language: &Language, text: &str) -> String {
     format!("\u{001b}[38;2;{};{};{}m{}\u{001b}[0m", r, g, b, text)
 }
 
-pub fn scan(dir: &str) -> std::io::Result<ScanResults> {
+pub fn scan<P: AsRef<std::path::Path>>(dir: &P) -> std::io::Result<ScanResults> {
     // Build a directory walker that respects `.gitignore` and other hidden files
     let walker = ignore::WalkBuilder::new(&dir).build();
 
