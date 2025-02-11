@@ -1,7 +1,9 @@
 [package]
 name = "loc"
+description = "Count the number of lines, words, and bytes"
 version = "0.1.0"
 edition = "2021"
+authors = ["Shresht7"]
 
 [lib]
 path = "src/lib/mod.rs"

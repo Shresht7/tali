@@ -1,6 +1,6 @@
 use clap::Parser;
 
-/// Simple CLI to count the number of lines of code in a project
+/// A structural representation of the command-line arguments
 #[derive(Debug, Parser)]
 #[command(author, version, about)]
 struct Args {
