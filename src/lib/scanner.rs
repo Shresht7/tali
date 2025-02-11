@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{file::File, language::Language, table::Alignment, table::TableWriter};
+use crate::{file::File, language::Language, table::Alignment, table::Table};
 
 #[derive(Debug)]
 pub struct ScanResults {
@@ -26,7 +26,7 @@ impl ScanResults {
     pub fn display(&self) -> String {
         let mut res = String::new();
         let mut total_no_of_files = 0;
-        res.push_str("Language\tFiles\tLines\n\n");
+        res.push_str("Language\tFiles\tLines\n");
         for (language, files) in self.group_by_language() {
             res.push_str(&format!(
                 "{}\t{}\t{}\n",
@@ -39,8 +39,16 @@ impl ScanResults {
             ));
             total_no_of_files += files.len();
         }
-        res.push_str(&format!("\nTotal {} {}", total_no_of_files, self.total));
-        res
+        res.push_str(&format!("\nTotal\t{}\t{}", total_no_of_files, self.total));
+        let mut res = Table::from(&res, '\t');
+        res.with_header(vec!["Language".into(), "Files".into(), "Lines".into()])
+            .with_footer(vec![
+                "Total".into(),
+                total_no_of_files.to_string(),
+                self.total.to_string(),
+            ])
+            .with_alignments(vec![Alignment::Left, Alignment::Center, Alignment::Right]);
+        res.display()
     }
 }
 
@@ -72,38 +80,4 @@ pub fn scan(dir: &str) -> std::io::Result<ScanResults> {
     }
 
     Ok(ScanResults { files, total })
-}
-
-impl std::fmt::Display for ScanResults {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut table = TableWriter::default();
-        table
-            .with_headers(vec!["Languages".into(), "Files".into(), "Lines".into()])
-            .with_alignment(vec![Alignment::Left, Alignment::Center, Alignment::Right])
-            .with_footer(vec![
-                "Total".into(),
-                self.files.len().to_string(),
-                self.files
-                    .iter()
-                    .fold(0, |mut acc, curr| {
-                        acc += curr.lines;
-                        acc
-                    })
-                    .to_string(),
-            ]);
-
-        for (group, files) in self.group_by_language() {
-            let lines = files.iter().fold(0, |mut acc, curr| {
-                acc += curr.lines;
-                acc
-            });
-            table.add_row(vec![
-                group.to_string(),
-                files.len().to_string(),
-                lines.to_string(),
-            ]);
-        }
-        write!(f, "{}", table)?;
-        Ok(())
-    }
 }

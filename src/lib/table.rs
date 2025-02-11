@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Alignment {
     Left,
     Center,
@@ -6,45 +6,49 @@ pub enum Alignment {
 }
 
 #[derive(Debug)]
-pub struct TableWriter {
-    headers: Vec<String>,
+pub struct Table {
+    header: Vec<String>,
     rows: Vec<Vec<String>>,
     footer: Vec<String>,
+    separator: String,
+    col_widths: Vec<usize>,
     alignments: Vec<Alignment>,
-    column_widths: Vec<usize>,
 }
 
-impl Default for TableWriter {
-    fn default() -> Self {
-        Self {
-            headers: Vec::with_capacity(5),
-            rows: Vec::with_capacity(5),
-            footer: Vec::with_capacity(5),
-            alignments: Vec::with_capacity(5),
-            column_widths: Vec::with_capacity(5),
+impl Table {
+    pub fn from(input: &str, delimiter: char) -> Table {
+        let rows: Vec<Vec<String>> = input
+            .lines()
+            .map(|line| {
+                line.split(delimiter)
+                    .map(|s| s.trim().to_string())
+                    .collect()
+            })
+            .collect();
+
+        let col_count = rows.iter().map(|row| row.len()).max().unwrap_or(0);
+        let alignments = vec![Alignment::Left; col_count];
+        let mut col_widths = vec![0; col_count];
+
+        for row in &rows {
+            for (i, cell) in row.iter().enumerate() {
+                col_widths[i] = std::cmp::max(col_widths[i], cell.len());
+            }
+        }
+
+        let separator = String::from(" | ");
+        Table {
+            header: Vec::new(),
+            rows,
+            footer: Vec::new(),
+            separator,
+            col_widths,
+            alignments,
         }
     }
-}
 
-impl TableWriter {
-    pub fn new(columns: usize) -> Self {
-        Self {
-            headers: Vec::with_capacity(columns),
-            rows: Vec::with_capacity(columns),
-            footer: Vec::with_capacity(columns),
-            alignments: Vec::with_capacity(columns),
-            column_widths: Vec::with_capacity(columns),
-        }
-    }
-
-    pub fn with_headers(&mut self, headers: Vec<String>) -> &mut Self {
-        self.headers = headers;
-        self.column_widths = self.headers.iter().map(|h| h.len()).collect();
-        self
-    }
-
-    pub fn with_alignment(&mut self, alignment: Vec<Alignment>) -> &mut Self {
-        self.alignments = alignment;
+    pub fn with_header(&mut self, header: Vec<String>) -> &mut Self {
+        self.header = header;
         self
     }
 
@@ -53,11 +57,22 @@ impl TableWriter {
         self
     }
 
-    pub fn add_row(&mut self, row: Vec<String>) {
+    pub fn with_alignments(&mut self, alignments: Vec<Alignment>) -> &mut Self {
+        self.alignments = alignments;
+        self
+    }
+
+    fn update_col_widths(&mut self, row: &Vec<String>) -> &mut Self {
         for (i, cell) in row.iter().enumerate() {
-            self.column_widths[i] = std::cmp::max(self.column_widths[i], cell.len());
+            self.col_widths[i] = std::cmp::max(self.col_widths[i], cell.len());
         }
-        self.rows.push(row)
+        self
+    }
+
+    pub fn add_row(&mut self, row: Vec<String>) -> &mut Self {
+        self.update_col_widths(&row);
+        self.rows.push(row);
+        self
     }
 
     fn format_cell(&self, text: &str, width: usize, alignment: Option<&Alignment>) -> String {
@@ -67,67 +82,22 @@ impl TableWriter {
             Some(Alignment::Right) => format!("{:>width$}", text, width = width),
         }
     }
-}
 
-impl std::fmt::Display for TableWriter {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let mut output = String::new();
-
-        // Print headers
-        if self.headers.len() > 0 {
-            for (i, header) in self.headers.iter().enumerate() {
-                output.push_str(&self.format_cell(
-                    header,
-                    self.column_widths[i],
-                    self.alignments.get(i),
-                ));
-                output.push_str(" | ");
-            }
-            output.push('\n');
-
-            // Print separator
-            output.push_str(
-                &"-".repeat(
-                    self.column_widths.iter().sum::<usize>() + (self.headers.len() * 3) - 2,
-                ),
-            );
-            output.push('\n');
+    fn format_row(&self, row: &Vec<String>) -> String {
+        let mut res = String::new();
+        for (i, cell) in row.iter().enumerate() {
+            res.push_str(&self.format_cell(cell, self.col_widths[i], self.alignments.get(i)));
+            res.push_str(&self.separator);
         }
+        res
+    }
 
-        // Print rows
+    pub fn display(&self) -> String {
+        let mut res = String::new();
         for row in &self.rows {
-            for (i, cell) in row.iter().enumerate() {
-                output.push_str(&self.format_cell(
-                    cell,
-                    self.column_widths[i],
-                    self.alignments.get(i),
-                ));
-                output.push_str(" | ");
-            }
-            output.push('\n');
+            res.push_str(&self.format_row(row));
+            res.push_str("\n");
         }
-
-        // Print footer
-        if self.footer.len() > 0 {
-            // Print separator
-            output.push_str(
-                &"-".repeat(
-                    self.column_widths.iter().sum::<usize>() + (self.headers.len() * 3) - 2,
-                ),
-            );
-            output.push('\n');
-
-            for (i, footer) in self.footer.iter().enumerate() {
-                output.push_str(&self.format_cell(
-                    footer,
-                    self.column_widths[i],
-                    self.alignments.get(i),
-                ));
-                output.push_str(" | ");
-            }
-            output.push('\n');
-        }
-
-        write!(f, "{}", output)
+        res
     }
 }
