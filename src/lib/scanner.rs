@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use crate::{file::File, language::Language};
+use crate::{file::File, language::Language, table::Alignment, table::TableWriter};
 
 #[derive(Debug)]
 pub struct ScanResults {
@@ -76,7 +76,34 @@ pub fn scan(dir: &str) -> std::io::Result<ScanResults> {
 
 impl std::fmt::Display for ScanResults {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        writeln!(f, "{}", self.display())?;
+        let mut table = TableWriter::default();
+        table
+            .with_headers(vec!["Languages".into(), "Files".into(), "Lines".into()])
+            .with_alignment(vec![Alignment::Left, Alignment::Center, Alignment::Right])
+            .with_footer(vec![
+                "Total".into(),
+                self.files.len().to_string(),
+                self.files
+                    .iter()
+                    .fold(0, |mut acc, curr| {
+                        acc += curr.lines;
+                        acc
+                    })
+                    .to_string(),
+            ]);
+
+        for (group, files) in self.group_by_language() {
+            let lines = files.iter().fold(0, |mut acc, curr| {
+                acc += curr.lines;
+                acc
+            });
+            table.add_row(vec![
+                group.to_string(),
+                files.len().to_string(),
+                lines.to_string(),
+            ]);
+        }
+        write!(f, "{}", table)?;
         Ok(())
     }
 }
