@@ -1,5 +1,7 @@
 use clap::Parser;
 
+mod commands;
+
 /// Simple CLI to count the number of lines of code in a project
 #[derive(Debug, Parser)]
 #[command(author, version, about)]
@@ -24,10 +26,10 @@ fn main() -> std::io::Result<()> {
 /// Run the main logic of the application
 fn run(args: &Args) -> std::io::Result<()> {
     // Perform the scanning operation
-    let result = loc::scan(&args.path)?;
-
-    // Print the results
-    println!("{}", result.display());
-
+    if args.path.is_file() {
+        commands::scan_file(&args.path)?;
+    } else {
+        loc::scan(&args.path)?;
+    }
     Ok(())
 }
