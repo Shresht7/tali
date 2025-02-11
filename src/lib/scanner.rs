@@ -56,26 +56,29 @@ fn color(language: &Language, text: &str) -> String {
     format!("\u{001b}[38;2;{};{};{}m{}\u{001b}[0m", r, g, b, text)
 }
 
-pub fn scan<P: AsRef<std::path::Path>>(dir: P) -> std::io::Result<ScanResults> {
-    // Build a directory walker that respects `.gitignore` and other hidden files
-    let walker = ignore::WalkBuilder::new(&dir).build();
-
-    // Collect the file info in a vector
+pub fn scan<P: AsRef<std::path::Path>>(paths: &Vec<P>) -> std::io::Result<ScanResults> {
     let mut files = Vec::new();
-    let mut total = 0;
+    for path in paths {
+        if path.as_ref().is_file() {
+            files.push(File::from_path(path)?)
+        } else {
+            // Build a directory walker that respects `.gitignore` and other hidden files
+            let walker = ignore::WalkBuilder::new(&path).build();
 
-    // Iterate over all the results
-    for result in walker {
-        match result {
-            Ok(entry) if entry.path().is_file() => {
-                let file = File::from_path(entry.path())?;
-                total += file.lines;
-                files.push(file);
+            // Iterate over all the results
+            for result in walker {
+                match result {
+                    Ok(entry) if entry.path().is_file() => {
+                        let file = File::from_path(entry.path())?;
+                        files.push(file);
+                    }
+                    Ok(_) => {} // Ignore directories and symlinks
+                    Err(e) => eprintln!("Error: {}", e), // Report errors
+                }
             }
-            Ok(_) => {}                          // Ignore directories and symlinks
-            Err(e) => eprintln!("Error: {}", e), // Report errors
         }
     }
 
+    let total = 0;
     Ok(ScanResults { files, total })
 }

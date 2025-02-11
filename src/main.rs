@@ -1,14 +1,12 @@
 use clap::Parser;
 
-mod commands;
-
 /// Simple CLI to count the number of lines of code in a project
 #[derive(Debug, Parser)]
 #[command(author, version, about)]
 struct Args {
     /// The path to scan (defaults to the current directory)
     #[arg(default_value = ".")]
-    path: std::path::PathBuf,
+    paths: Vec<std::path::PathBuf>,
 }
 
 /// The main entry-point of the application
@@ -25,11 +23,7 @@ fn main() -> std::io::Result<()> {
 
 /// Run the main logic of the application
 fn run(args: &Args) -> std::io::Result<()> {
-    // Perform the scanning operation
-    if args.path.is_file() {
-        commands::scan_file(&args.path)?;
-    } else {
-        loc::scan(&args.path)?;
-    }
+    let results = loc::scan(&args.paths);
+    println!("{:?}", results);
     Ok(())
 }
