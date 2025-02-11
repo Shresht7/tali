@@ -12,7 +12,7 @@ pub struct File {
 
 impl File {
     /// Parse a [`File`] from the given [`path`][std::path::Path]
-    pub fn from_path(path: &std::path::Path) -> std::io::Result<File> {
+    pub fn from_path<P: AsRef<std::path::Path>>(path: P) -> std::io::Result<File> {
         // Create a buffered reader to read the file-contents
         let file = std::fs::File::open(&path)?;
         let reader = std::io::BufReader::new(file);
@@ -26,7 +26,7 @@ impl File {
         }
 
         // Try to determine the language from the file extension
-        let path = path.to_path_buf();
+        let path = path.as_ref().to_path_buf();
         let language = Language::from_path(&path);
 
         Ok(File {
