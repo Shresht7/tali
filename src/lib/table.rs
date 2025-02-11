@@ -63,10 +63,7 @@ impl TableWriter {
     fn format_cell(&self, text: &str, width: usize, alignment: Option<&Alignment>) -> String {
         match alignment {
             Some(Alignment::Left) | None => format!("{:<width$}", text, width = width),
-            Some(Alignment::Center) => {
-                let pad = width.saturating_sub(text.len()) / 2;
-                format!("{:pad$}{}{:pad$}", "", text, "", pad = pad)
-            }
+            Some(Alignment::Center) => format!("{:^width$}", text, width = width),
             Some(Alignment::Right) => format!("{:>width$}", text, width = width),
         }
     }
