@@ -82,7 +82,7 @@ impl ScanResults {
             ));
             total_no_of_files += files.len();
         }
-        let mut res = Table::from(&res, '\t');
+        let mut res = Table::from_tsv(&res);
         res.with_header(vec!["Language".into(), "Files".into(), "Lines".into()])
             .with_footer(vec!["Total".into(), total_no_of_files.to_string()])
             .with_alignments(vec![Alignment::Left, Alignment::Center, Alignment::Right]);
@@ -174,7 +174,7 @@ impl Display {
 
         let alignments = self.build_alignments();
 
-        let mut table = Table::from(&res, '\t');
+        let mut table = Table::from_tsv(&res);
         table
             .with_header(header)
             .with_footer(footer)

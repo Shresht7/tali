@@ -61,7 +61,7 @@ mod tests {
 
     #[test]
     fn test_table_iterator_order() {
-        let mut table = Table::from("a,b\nc,d", ',');
+        let mut table = Table::from_csv("a,b\nc,d");
         table.with_header(vec!["H1".to_string(), "H2".to_string()]);
         table.with_footer(vec!["F1".to_string(), "F2".to_string()]);
 
@@ -79,7 +79,7 @@ mod tests {
 
     #[test]
     fn test_table_iterator_empty_header() {
-        let mut table = Table::from("a,b\nc,d", ',');
+        let mut table = Table::from_csv("a,b\nc,d");
         table.with_footer(vec!["F1".to_string(), "F2".to_string()]);
 
         let iterated: Vec<Vec<String>> = table.into_iter().cloned().collect();
@@ -95,7 +95,7 @@ mod tests {
 
     #[test]
     fn test_table_iterator_empty_footer() {
-        let mut table = Table::from("a,b\nc,d", ',');
+        let mut table = Table::from_csv("a,b\nc,d");
         table.with_header(vec!["H1".to_string(), "H2".to_string()]);
 
         let iterated: Vec<Vec<String>> = table.into_iter().cloned().collect();
@@ -111,7 +111,7 @@ mod tests {
 
     #[test]
     fn test_table_iterator_empty_rows() {
-        let mut table = Table::from("", ',');
+        let mut table = Table::from_csv("");
         table.with_header(vec!["H1".to_string(), "H2".to_string()]);
         table.with_footer(vec!["F1".to_string(), "F2".to_string()]);
 

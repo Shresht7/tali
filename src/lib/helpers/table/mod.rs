@@ -11,34 +11,30 @@ pub use columns::*;
 
 mod iterator;
 
+mod builder;
+pub use builder::*;
+
 #[derive(Debug, Default)]
 pub struct Table {
     header: Vec<String>,
     rows: Vec<Vec<String>>,
     footer: Vec<String>,
-
     separator: Separator,
-
     columns: Columns,
     alignments: Vec<Alignment>,
 }
 
 impl Table {
-    pub fn from(input: &str, delimiter: char) -> Table {
-        let rows: Vec<Vec<String>> = input
-            .lines()
-            .map(|line| {
-                line.split(delimiter)
-                    .map(|s| s.trim().to_string())
-                    .collect()
-            })
-            .collect();
-        let mut table = Table {
-            rows,
-            ..Default::default()
-        };
-        table.columns.mark_for_recalc();
-        table
+    pub fn builder() -> TableBuilder {
+        TableBuilder::default()
+    }
+
+    pub fn from_csv(input: impl Into<String>) -> Self {
+        TableBuilder::from_csv(input).build()
+    }
+
+    pub fn from_tsv(input: impl Into<String>) -> Self {
+        TableBuilder::from_tsv(input).build()
     }
 
     pub fn with_header(&mut self, header: Vec<String>) -> &mut Self {
@@ -140,34 +136,34 @@ mod tests {
     #[test]
     fn test_table_from() {
         let input = "a,b,c\nd,e,f";
-        let table = Table::from(input, ',');
+        let table = Table::from_csv(input);
         assert_eq!(table.rows, vec![vec!["a", "b", "c"], vec!["d", "e", "f"]]);
     }
 
     #[test]
     fn test_with_header() {
-        let mut table = Table::from("", ',');
+        let mut table = Table::from_csv("");
         table.with_header(vec!["Col1".to_string(), "Col2".to_string()]);
         assert_eq!(table.header, vec!["Col1", "Col2"]);
     }
 
     #[test]
     fn test_with_footer() {
-        let mut table = Table::from("", ',');
+        let mut table = Table::from_csv("");
         table.with_footer(vec!["Total".to_string(), "42".to_string()]);
         assert_eq!(table.footer, vec!["Total", "42"]);
     }
 
     #[test]
     fn test_with_alignments() {
-        let mut table = Table::from("", ',');
+        let mut table = Table::from_csv("");
         table.with_alignments(vec![Alignment::Left, Alignment::Right]);
         assert_eq!(table.alignments, vec![Alignment::Left, Alignment::Right]);
     }
 
     #[test]
     fn test_with_separators() {
-        let mut table = Table::from("", ',');
+        let mut table = Table::from_csv("");
         table
             .with_horizontal_separator("---")
             .with_vertical_separator("|");
@@ -177,14 +173,14 @@ mod tests {
 
     #[test]
     fn test_add_row() {
-        let mut table = Table::from("", ',');
+        let mut table = Table::from_csv("");
         table.add_row(vec!["Data1".to_string(), "Data2".to_string()]);
         assert_eq!(table.rows, vec![vec!["Data1", "Data2"]]);
     }
 
     #[test]
     fn test_display_output() {
-        let mut table = Table::from("a,b\nc,d", ',');
+        let mut table = Table::from_csv("a,b\nc,d");
         table.with_header(vec!["H1".to_string(), "H2".to_string()]);
         table.with_footer(vec!["F1".to_string(), "F2".to_string()]);
         let output = table.display();
