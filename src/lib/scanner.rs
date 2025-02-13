@@ -2,8 +2,8 @@ use std::collections::HashMap;
 
 use crate::{
     file::File,
+    helpers::table::{Alignment, Table},
     language::Language,
-    table::{Alignment, Table},
 };
 
 // -------
