@@ -1,3 +1,5 @@
+use crate::helpers::ansi;
+
 /// Represents the column widths of a table
 #[derive(Debug, Default)]
 pub struct Columns {
@@ -48,7 +50,7 @@ impl Columns {
             }
 
             for (i, cell) in row.iter().enumerate() {
-                self.widths[i] = self.widths[i].max(cell.len());
+                self.widths[i] = self.widths[i].max(ansi::visible_width(&cell));
             }
         }
 
