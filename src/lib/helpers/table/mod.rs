@@ -9,6 +9,8 @@ pub use separator::*;
 mod columns;
 pub use columns::*;
 
+mod iterator;
+
 #[derive(Debug, Default)]
 pub struct Table {
     header: Vec<String>,
@@ -107,12 +109,8 @@ impl Table {
         let mut res = String::new();
 
         // Calculate column widths
-        let iterator = self
-            .rows
-            .iter()
-            .chain(std::iter::once(&self.header))
-            .chain(std::iter::once(&self.footer));
-        self.columns.calculate(iterator);
+        let iter = self.into_iter().cloned().collect::<Vec<_>>();
+        self.columns.calculate(iter);
 
         // Format Header
         if !self.header.is_empty() {
