@@ -6,6 +6,9 @@ pub use alignment::*;
 mod separator;
 pub use separator::*;
 
+mod columns;
+pub use columns::*;
+
 #[derive(Debug, Default)]
 pub struct Table {
     header: Vec<String>,
@@ -14,7 +17,7 @@ pub struct Table {
 
     separator: Separator,
 
-    col_widths: Vec<usize>,
+    columns: Columns,
     alignments: Vec<Alignment>,
 }
 
@@ -28,19 +31,23 @@ impl Table {
                     .collect()
             })
             .collect();
-        Table {
+        let mut table = Table {
             rows,
             ..Default::default()
-        }
+        };
+        table.columns.mark_for_recalc();
+        table
     }
 
     pub fn with_header(&mut self, header: Vec<String>) -> &mut Self {
         self.header = header;
+        self.columns.mark_for_recalc();
         self
     }
 
     pub fn with_footer(&mut self, footer: Vec<String>) -> &mut Self {
         self.footer = footer;
+        self.columns.mark_for_recalc();
         self
     }
 
@@ -49,36 +56,17 @@ impl Table {
         self
     }
 
-    fn calculate_col_widths(&mut self) {
-        let iterator = self
-            .rows
-            .iter()
-            .chain(std::iter::once(&self.header))
-            .chain(std::iter::once(&self.footer));
-
-        let col_count = iterator.clone().map(|row| row.len()).max().unwrap_or(0);
-        self.col_widths.resize(col_count.clone(), 0);
-
-        for row in iterator {
-            for (i, cell) in row.iter().enumerate() {
-                self.col_widths[i] = std::cmp::max(
-                    self.col_widths.get(i).copied().unwrap_or(0),
-                    ansi::visible_width(cell),
-                );
-            }
-        }
-    }
-
     pub fn add_row(&mut self, row: Vec<String>) -> &mut Self {
         self.rows.push(row);
+        self.columns.mark_for_recalc();
         self
     }
 
     fn format_vertical_separator(&self) -> String {
         let sep_v = &self.separator.vertical;
         let sep_h = &self.separator.horizontal;
-        self.col_widths
-            .iter()
+        self.columns
+            .into_iter()
             .map(|w| sep_v.repeat(*w))
             .collect::<Vec<_>>()
             .join(&sep_v.repeat(sep_h.len()))
@@ -104,7 +92,11 @@ impl Table {
     fn format_row(&self, row: &Vec<String>) -> String {
         let mut res = String::new();
         for (i, cell) in row.iter().enumerate() {
-            res.push_str(&self.format_cell(cell, self.col_widths[i], self.alignments.get(i)));
+            res.push_str(&self.format_cell(
+                cell,
+                self.columns.get_or(i, ansi::visible_width(cell)),
+                self.alignments.get(i),
+            ));
             res.push_str(&self.separator.horizontal);
         }
         res.push_str("\n");
@@ -115,7 +107,12 @@ impl Table {
         let mut res = String::new();
 
         // Calculate column widths
-        self.calculate_col_widths();
+        let iterator = self
+            .rows
+            .iter()
+            .chain(std::iter::once(&self.header))
+            .chain(std::iter::once(&self.footer));
+        self.columns.calculate(iterator);
 
         // Format Header
         if !self.header.is_empty() {
