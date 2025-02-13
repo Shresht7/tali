@@ -8,14 +8,42 @@ pub enum Alignment {
 }
 
 #[derive(Debug)]
+struct Separator {
+    pub horizontal: String,
+    pub vertical: String,
+}
+
+impl Default for Separator {
+    fn default() -> Self {
+        Self {
+            horizontal: "    ".into(),
+            vertical: "-".into(),
+        }
+    }
+}
+
+#[derive(Debug, Default)]
 pub struct Table {
     header: Vec<String>,
     rows: Vec<Vec<String>>,
     footer: Vec<String>,
-    separator: String,
-    vertical_separator: String,
+
+    separator: Separator,
+
     col_widths: Vec<usize>,
     alignments: Vec<Alignment>,
+}
+
+impl Table {
+    pub fn with_horizontal_separator(mut self, separator: &str) -> Self {
+        self.separator.horizontal = separator.to_owned();
+        self
+    }
+
+    pub fn with_vertical_separator(mut self, separator: &str) -> Self {
+        self.separator.vertical = separator.to_owned();
+        self
+    }
 }
 
 impl Table {
@@ -39,15 +67,13 @@ impl Table {
             }
         }
 
-        let separator = String::from(" | ");
         Table {
             header: Vec::new(),
             rows,
             footer: Vec::new(),
-            separator,
-            vertical_separator: "-".into(),
             col_widths,
             alignments,
+            ..Default::default()
         }
     }
 
@@ -82,12 +108,14 @@ impl Table {
     }
 
     fn format_vertical_separator(&self) -> String {
+        let sep_v = &self.separator.vertical;
+        let sep_h = &self.separator.horizontal;
         self.col_widths
             .iter()
-            .map(|w| self.vertical_separator.repeat(*w))
+            .map(|w| sep_v.repeat(*w))
             .collect::<Vec<_>>()
-            .join(&self.vertical_separator.repeat(self.separator.len()))
-            + &self.vertical_separator
+            .join(&sep_v.repeat(sep_h.len()))
+            + &sep_v
             + "\n"
     }
 
@@ -110,7 +138,7 @@ impl Table {
         let mut res = String::new();
         for (i, cell) in row.iter().enumerate() {
             res.push_str(&self.format_cell(cell, self.col_widths[i], self.alignments.get(i)));
-            res.push_str(&self.separator);
+            res.push_str(&self.separator.horizontal);
         }
         res.push_str("\n");
         res
