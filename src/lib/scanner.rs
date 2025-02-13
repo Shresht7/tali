@@ -13,12 +13,14 @@ pub fn scan<P: AsRef<std::path::Path>>(paths: &[P]) -> std::io::Result<ScanResul
 
     // Accumulators
     let mut total = Totals::default();
+    let mut max = Max::default();
 
     for path in paths {
         if path.as_ref().is_file() {
             // Parse the file, accumulate stats, and add to the collection
             let file = File::scan(path)?;
             total.add(&file);
+            max.track(&file);
             files.push(file);
         } else {
             // Build a directory walker that respects `.gitignore` and other hidden files
@@ -31,6 +33,7 @@ pub fn scan<P: AsRef<std::path::Path>>(paths: &[P]) -> std::io::Result<ScanResul
                         // Parse the file, accumulate stats, and add it to the collection
                         let file = File::scan(entry.path())?;
                         total.add(&file);
+                        max.track(&file);
                         files.push(file);
                     }
 
@@ -41,7 +44,7 @@ pub fn scan<P: AsRef<std::path::Path>>(paths: &[P]) -> std::io::Result<ScanResul
         }
     }
 
-    Ok(ScanResults { files, total })
+    Ok(ScanResults { files, total, max })
 }
 
 // ------------
@@ -53,6 +56,7 @@ pub fn scan<P: AsRef<std::path::Path>>(paths: &[P]) -> std::io::Result<ScanResul
 pub struct ScanResults {
     pub files: Vec<File>,
     pub total: Totals,
+    pub max: Max,
 }
 
 impl ScanResults {
@@ -71,6 +75,10 @@ impl ScanResults {
     }
 }
 
+// ------------
+// ACCUMULATORS
+// ------------
+
 /// Helper struct for accumulating totals
 #[derive(Debug, Default)]
 pub struct Totals {
@@ -88,5 +96,23 @@ impl Totals {
         self.words += file.words;
         self.chars += file.chars;
         self.bytes += file.bytes;
+    }
+}
+
+/// Helper struct to accumulate max
+#[derive(Debug, Default)]
+pub struct Max {
+    pub lines: usize,
+    pub words: usize,
+    pub chars: usize,
+    pub bytes: u64,
+}
+
+impl Max {
+    fn track(&mut self, file: &File) {
+        self.lines = self.lines.max(file.lines);
+        self.words = self.words.max(file.words);
+        self.chars = self.chars.max(file.chars);
+        self.bytes = self.bytes.max(file.bytes);
     }
 }

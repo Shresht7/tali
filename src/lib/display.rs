@@ -73,12 +73,11 @@ impl Display {
 
     pub fn display(&self, results: &ScanResults) -> String {
         let mut res = String::new();
-        let max_bytes = results.files.iter().map(|f| f.bytes).max().unwrap_or(1);
 
         let header = self.build_header();
 
         for file in &results.files {
-            res.push_str(&self.build_row(file, max_bytes));
+            res.push_str(&self.build_row(file, &results));
         }
 
         let footer = self.build_footer(&results);
@@ -126,7 +125,7 @@ impl Display {
         )
     }
 
-    fn build_row(&self, file: &File, max_bytes: u64) -> String {
+    fn build_row(&self, file: &File, results: &ScanResults) -> String {
         let mut cols = Vec::new();
 
         if self.language {
@@ -161,7 +160,7 @@ impl Display {
         if self.visualization {
             let filled = "█";
             let blank = "░";
-            let bar_length = (file.bytes as f64 / max_bytes as f64 * 20.0).round() as usize;
+            let bar_length = (file.bytes as f64 / results.max.bytes as f64 * 20.0).round() as usize;
             let bar = filled.repeat(bar_length) + &blank.repeat(20 - bar_length);
             cols.push(color(&file.language, &bar));
         }
