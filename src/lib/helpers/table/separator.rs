@@ -14,12 +14,12 @@ impl Default for Separator {
 }
 
 impl super::Table {
-    pub fn with_horizontal_separator(mut self, separator: &str) -> Self {
+    pub fn with_horizontal_separator(&mut self, separator: &str) -> &mut Self {
         self.separator.horizontal = separator.to_owned();
         self
     }
 
-    pub fn with_vertical_separator(mut self, separator: &str) -> Self {
+    pub fn with_vertical_separator(&mut self, separator: &str) -> &mut Self {
         self.separator.vertical = separator.to_owned();
         self
     }
