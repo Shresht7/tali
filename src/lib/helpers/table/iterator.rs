@@ -1,3 +1,4 @@
+/// Iterator for traversing a [`Table`][super::Table] in order: header, rows, and footer
 pub struct TableIter<'a> {
     header: Option<&'a Vec<String>>,
     rows: std::slice::Iter<'a, Vec<String>>,
@@ -5,6 +6,7 @@ pub struct TableIter<'a> {
     state: IterState,
 }
 
+/// Tracks the current iteration state
 enum IterState {
     Header,
     Rows,

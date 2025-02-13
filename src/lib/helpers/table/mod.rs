@@ -14,52 +14,62 @@ mod iterator;
 mod builder;
 pub use builder::*;
 
+/// Represents a table with headers, rows, and footers, along
+/// with configurable column alignments and separators.
 #[derive(Debug, Default)]
 pub struct Table {
-    header: Vec<String>,
-    rows: Vec<Vec<String>>,
-    footer: Vec<String>,
-    separator: Separator,
-    columns: Columns,
-    alignments: Vec<Alignment>,
+    header: Vec<String>,        // Stores the header row
+    rows: Vec<Vec<String>>,     // Stores the table data
+    footer: Vec<String>,        // Stores the footer row
+    separator: Separator,       // Describes the column and row separators
+    columns: Columns,           // Manages column width calculations
+    alignments: Vec<Alignment>, // Stores column alignments
 }
 
 impl Table {
+    /// Returns a new [`TableBuilder`] instance for constructing a table
     pub fn builder() -> TableBuilder {
         TableBuilder::default()
     }
 
+    /// Construct a [`Table`] from a CSV-formatted string
     pub fn from_csv(input: impl Into<String>) -> Self {
         TableBuilder::from_csv(input).build()
     }
 
+    /// Construct a [`Table`] from a TSV-formatted string
     pub fn from_tsv(input: impl Into<String>) -> Self {
         TableBuilder::from_tsv(input).build()
     }
 
+    /// Sets the [header][Table::header] row of the table
     pub fn with_header(&mut self, header: Vec<String>) -> &mut Self {
         self.header = header;
         self.columns.mark_for_recalc();
         self
     }
 
+    /// Sets the [footer][Table::footer] row of the table
     pub fn with_footer(&mut self, footer: Vec<String>) -> &mut Self {
         self.footer = footer;
         self.columns.mark_for_recalc();
         self
     }
 
+    /// Configure the column alignments
     pub fn with_alignments(&mut self, alignments: Vec<Alignment>) -> &mut Self {
         self.alignments = alignments;
         self
     }
 
+    /// Adds a row to the table
     pub fn add_row(&mut self, row: Vec<String>) -> &mut Self {
         self.rows.push(row);
         self.columns.mark_for_recalc();
         self
     }
 
+    /// Builds a vertical separator
     fn format_vertical_separator(&self) -> String {
         let sep_v = &self.separator.vertical;
         let sep_h = &self.separator.horizontal;
@@ -72,6 +82,7 @@ impl Table {
             + "\n"
     }
 
+    /// Formats a single cell with the appropriate alignment
     fn format_cell(&self, text: &str, width: usize, alignment: Option<&Alignment>) -> String {
         let visible_width = ansi::visible_width(text);
         let width = if visible_width < width {
@@ -87,6 +98,7 @@ impl Table {
         res
     }
 
+    /// Formats a row of data for display
     fn format_row(&self, row: &Vec<String>) -> String {
         let mut res = String::new();
         for (i, cell) in row.iter().enumerate() {
@@ -101,6 +113,7 @@ impl Table {
         res
     }
 
+    /// Generates a formatted string representation of the table
     pub fn display(&mut self) -> String {
         let mut res = String::new();
 
@@ -134,9 +147,16 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_table_from() {
+    fn test_table_from_csv() {
         let input = "a,b,c\nd,e,f";
         let table = Table::from_csv(input);
+        assert_eq!(table.rows, vec![vec!["a", "b", "c"], vec!["d", "e", "f"]]);
+    }
+
+    #[test]
+    fn test_table_from_tsv() {
+        let input = "a\tb\tc\nd\te\tf";
+        let table = Table::from_tsv(input);
         assert_eq!(table.rows, vec![vec!["a", "b", "c"], vec!["d", "e", "f"]]);
     }
 
