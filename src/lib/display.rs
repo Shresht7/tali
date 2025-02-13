@@ -74,11 +74,12 @@ impl Display {
     pub fn display(&self, results: ScanResults) -> String {
         let mut res = String::new();
         let mut totals = Totals::default();
+        let max_bytes = results.files.iter().map(|f| f.bytes).max().unwrap_or(1);
 
         let header = self.build_header();
 
         for file in &results.files {
-            res.push_str(&self.build_row(file));
+            res.push_str(&self.build_row(file, max_bytes));
             totals.add(file);
         }
 
@@ -109,6 +110,7 @@ impl Display {
             self.words,
             self.chars,
             self.bytes,
+            self.visualization,
         ];
         values
             .into_iter()
@@ -119,11 +121,14 @@ impl Display {
 
     fn build_header(&self) -> Vec<String> {
         self.selected_columns(
-            ["Language", "Path", "Lines", "Words", "Chars", "Bytes"].map(String::from),
+            [
+                "Language", "Path", "Lines", "Words", "Chars", "Bytes", "Graph",
+            ]
+            .map(String::from),
         )
     }
 
-    fn build_row(&self, file: &File) -> String {
+    fn build_row(&self, file: &File, max_bytes: u64) -> String {
         let mut cols = Vec::new();
 
         if self.language {
@@ -155,6 +160,14 @@ impl Display {
             cols.push(file.bytes.to_string());
         }
 
+        if self.visualization {
+            let filled = "█";
+            let blank = "░";
+            let bar_length = (file.bytes as f64 / max_bytes as f64 * 20.0).round() as usize;
+            let bar = filled.repeat(bar_length) + &blank.repeat(20 - bar_length);
+            cols.push(color(&file.language, &bar));
+        }
+
         cols.join("\t") + "\n"
     }
 
@@ -177,6 +190,7 @@ impl Display {
             Alignment::Right,
             Alignment::Right,
             Alignment::Right,
+            Alignment::Left,
         ])
     }
 }
