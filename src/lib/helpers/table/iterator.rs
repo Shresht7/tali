@@ -37,19 +37,91 @@ impl<'a> IntoIterator for &'a super::Table {
     type Item = &'a Vec<String>;
     type IntoIter = TableIter<'a>;
     fn into_iter(self) -> Self::IntoIter {
+        // Skip iteration states if they are empty
+        let initial_state = if !self.header.is_empty() {
+            IterState::Header
+        } else if !self.rows.is_empty() {
+            IterState::Rows
+        } else {
+            IterState::Footer
+        };
+
         TableIter {
-            header: if self.header.is_empty() {
-                None
-            } else {
-                Some(&self.header)
-            },
+            header: (!self.header.is_empty()).then_some(&self.header),
             rows: self.rows.iter(),
-            footer: if self.footer.is_empty() {
-                None
-            } else {
-                Some(&self.footer)
-            },
-            state: IterState::Header,
+            footer: (!self.footer.is_empty()).then_some(&self.footer),
+            state: initial_state,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::super::*;
+
+    #[test]
+    fn test_table_iterator_order() {
+        let mut table = Table::from("a,b\nc,d", ',');
+        table.with_header(vec!["H1".to_string(), "H2".to_string()]);
+        table.with_footer(vec!["F1".to_string(), "F2".to_string()]);
+
+        let iterated: Vec<Vec<String>> = table.into_iter().cloned().collect();
+
+        let expected = vec![
+            vec!["H1".to_string(), "H2".to_string()],
+            vec!["a".to_string(), "b".to_string()],
+            vec!["c".to_string(), "d".to_string()],
+            vec!["F1".to_string(), "F2".to_string()],
+        ];
+
+        assert_eq!(iterated, expected);
+    }
+
+    #[test]
+    fn test_table_iterator_empty_header() {
+        let mut table = Table::from("a,b\nc,d", ',');
+        table.with_footer(vec!["F1".to_string(), "F2".to_string()]);
+
+        let iterated: Vec<Vec<String>> = table.into_iter().cloned().collect();
+
+        let expected = vec![
+            vec!["a".to_string(), "b".to_string()],
+            vec!["c".to_string(), "d".to_string()],
+            vec!["F1".to_string(), "F2".to_string()],
+        ];
+
+        assert_eq!(iterated, expected);
+    }
+
+    #[test]
+    fn test_table_iterator_empty_footer() {
+        let mut table = Table::from("a,b\nc,d", ',');
+        table.with_header(vec!["H1".to_string(), "H2".to_string()]);
+
+        let iterated: Vec<Vec<String>> = table.into_iter().cloned().collect();
+
+        let expected = vec![
+            vec!["H1".to_string(), "H2".to_string()],
+            vec!["a".to_string(), "b".to_string()],
+            vec!["c".to_string(), "d".to_string()],
+        ];
+
+        assert_eq!(iterated, expected);
+    }
+
+    #[test]
+    fn test_table_iterator_empty_rows() {
+        let mut table = Table::from("", ',');
+        table.with_header(vec!["H1".to_string(), "H2".to_string()]);
+        table.with_footer(vec!["F1".to_string(), "F2".to_string()]);
+
+        let iterated: Vec<Vec<String>> = table.into_iter().cloned().collect();
+
+        let expected = vec![
+            vec!["H1".to_string(), "H2".to_string()],
+            vec!["F1".to_string(), "F2".to_string()],
+        ];
+
+        assert_eq!(iterated, expected);
     }
 }
