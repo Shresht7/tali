@@ -7,7 +7,7 @@ pub struct TableBuilder {
     has_header: bool,
     // Whether the last row is treater as a footer
     has_footer: bool,
-    // Delimtier to use for splitting columns (defaults to \t)
+    // Delimiter to use for splitting columns (defaults to \t)
     delimiter: char,
 }
 
