@@ -83,3 +83,27 @@ define_languages! {
     Bash        from ["sh"]              with RGB(88, 156, 88),
     Makefile    from ["mk", "makefile"]  with RGB(48, 77, 48),
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_from_extension() {
+        assert_eq!(Language::from_extension("rs"), Language::Rust);
+        assert_eq!(Language::from_extension("cpp"), Language::CPP);
+        assert_eq!(Language::from_extension("py"), Language::Python);
+        assert_eq!(
+            Language::from_extension("unknown_ext"),
+            Language::Unknown("unknown_ext".to_string())
+        );
+    }
+
+    #[test]
+    fn test_from_path() {
+        assert_eq!(Language::from_path("main.rs"), Language::Rust);
+        assert_eq!(Language::from_path("script.py"), Language::Python);
+        assert_eq!(Language::from_path("index.html"), Language::HTML);
+        assert_eq!(Language::from_path("/no_extension"), Language::Text);
+    }
+}
