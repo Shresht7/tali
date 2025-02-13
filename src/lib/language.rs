@@ -73,5 +73,13 @@ define_languages! {
     Java        from ["java"]            with RGB(176, 114, 25),
     HTML        from ["html", "htm"]     with RGB(227, 76, 38),
     CSS         from ["css"]             with RGB(86, 61, 124),
-    YAML        from ["yaml", "yml"]     with RGB(255, 255, 0)
+    YAML        from ["yaml", "yml"]     with RGB(255, 255, 0),
+    PHP         from ["php"]             with RGB(79, 93, 149),
+    Swift       from ["swift"]           with RGB(255, 102, 0),
+    Kotlin      from ["kt", "kts"]       with RGB(136, 58, 163),
+    Ruby        from ["rb"]              with RGB(204, 52, 51),
+    Perl        from ["pl", "pm"]        with RGB(129, 133, 149),
+    Lua         from ["lua"]             with RGB(0, 0, 255),
+    Bash        from ["sh"]              with RGB(88, 156, 88),
+    Makefile    from ["mk", "makefile"]  with RGB(48, 77, 48),
 }
