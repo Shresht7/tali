@@ -1,3 +1,4 @@
+mod display;
 mod file;
 mod helpers;
 mod language;
