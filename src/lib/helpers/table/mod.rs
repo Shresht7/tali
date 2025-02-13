@@ -139,3 +139,64 @@ impl Table {
         res
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_table_from() {
+        let input = "a,b,c\nd,e,f";
+        let table = Table::from(input, ',');
+        assert_eq!(table.rows, vec![vec!["a", "b", "c"], vec!["d", "e", "f"]]);
+    }
+
+    #[test]
+    fn test_with_header() {
+        let mut table = Table::from("", ',');
+        table.with_header(vec!["Col1".to_string(), "Col2".to_string()]);
+        assert_eq!(table.header, vec!["Col1", "Col2"]);
+    }
+
+    #[test]
+    fn test_with_footer() {
+        let mut table = Table::from("", ',');
+        table.with_footer(vec!["Total".to_string(), "42".to_string()]);
+        assert_eq!(table.footer, vec!["Total", "42"]);
+    }
+
+    #[test]
+    fn test_with_alignments() {
+        let mut table = Table::from("", ',');
+        table.with_alignments(vec![Alignment::Left, Alignment::Right]);
+        assert_eq!(table.alignments, vec![Alignment::Left, Alignment::Right]);
+    }
+
+    #[test]
+    fn test_with_separators() {
+        let mut table = Table::from("", ',');
+        table
+            .with_horizontal_separator("---")
+            .with_vertical_separator("|");
+        assert_eq!(table.separator.horizontal, "---");
+        assert_eq!(table.separator.vertical, "|");
+    }
+
+    #[test]
+    fn test_add_row() {
+        let mut table = Table::from("", ',');
+        table.add_row(vec!["Data1".to_string(), "Data2".to_string()]);
+        assert_eq!(table.rows, vec![vec!["Data1", "Data2"]]);
+    }
+
+    #[test]
+    fn test_display_output() {
+        let mut table = Table::from("a,b\nc,d", ',');
+        table.with_header(vec!["H1".to_string(), "H2".to_string()]);
+        table.with_footer(vec!["F1".to_string(), "F2".to_string()]);
+        let output = table.display();
+        assert!(output.contains("H1"));
+        assert!(output.contains("a"));
+        assert!(output.contains("F1"));
+    }
+}
