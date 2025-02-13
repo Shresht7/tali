@@ -1,7 +1,11 @@
 /// Character that denotes the starts of escape codes
 const ESC: char = '\x1b';
 
-/// Determine the length of characters in an ANSI string that are visible in the terminal
+/// Determine the visible width (i.e. the number of printable characters) of an ANSI string.
+///
+/// This function skips ANSI escape sequences (CSI sequences starting with [`ESC`] followed by `[`)
+/// so that ansi color codes do not affect width calculations. Note that it is designed for CSI-style
+/// escape sequences and may not correctly handle other types (yet).
 pub fn visible_width(s: &str) -> usize {
     let mut width: usize = 0;
     let mut chars = s.chars();
