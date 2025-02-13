@@ -1,26 +1,10 @@
 use crate::helpers::ansi;
 
-#[derive(Debug, Clone)]
-pub enum Alignment {
-    Left,
-    Center,
-    Right,
-}
+mod alignment;
+pub use alignment::*;
 
-#[derive(Debug)]
-struct Separator {
-    pub horizontal: String,
-    pub vertical: String,
-}
-
-impl Default for Separator {
-    fn default() -> Self {
-        Self {
-            horizontal: "    ".into(),
-            vertical: "-".into(),
-        }
-    }
-}
+mod separator;
+pub use separator::*;
 
 #[derive(Debug, Default)]
 pub struct Table {
@@ -32,18 +16,6 @@ pub struct Table {
 
     col_widths: Vec<usize>,
     alignments: Vec<Alignment>,
-}
-
-impl Table {
-    pub fn with_horizontal_separator(mut self, separator: &str) -> Self {
-        self.separator.horizontal = separator.to_owned();
-        self
-    }
-
-    pub fn with_vertical_separator(mut self, separator: &str) -> Self {
-        self.separator.vertical = separator.to_owned();
-        self
-    }
 }
 
 impl Table {
