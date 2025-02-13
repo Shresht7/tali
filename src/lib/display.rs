@@ -91,30 +91,23 @@ impl Display {
         table.display()
     }
 
+    // Helper function to select columns
+    fn selected_columns<T>(&self, values: T) -> Vec<T::Item>
+    where
+        T: IntoIterator,
+        T::IntoIter: ExactSizeIterator,
+        T::Item: Clone,
+    {
+        let options = [self.path, self.lines, self.words, self.chars, self.bytes];
+        values
+            .into_iter()
+            .enumerate()
+            .filter_map(|(i, v)| options[i].then_some(v.clone()))
+            .collect()
+    }
+
     fn build_header(&self) -> Vec<String> {
-        let mut headers = Vec::new();
-
-        if self.path {
-            headers.push("Path".to_string());
-        }
-
-        if self.lines {
-            headers.push("Lines".to_string());
-        }
-
-        if self.words {
-            headers.push("Words".to_string());
-        }
-
-        if self.chars {
-            headers.push("Chars".to_string());
-        }
-
-        if self.bytes {
-            headers.push("Bytes".to_string());
-        }
-
-        headers
+        self.selected_columns(["Path", "Lines", "Words", "Chars", "Bytes"].map(String::from))
     }
 
     fn build_row(&self, file: &File) -> String {
@@ -144,55 +137,23 @@ impl Display {
     }
 
     fn build_footer(&self, totals: &Totals) -> Vec<String> {
-        let mut footer = Vec::new();
-
-        if self.path {
-            footer.push("Total".to_string());
-        }
-
-        if self.lines {
-            footer.push(totals.lines.to_string());
-        }
-
-        if self.words {
-            footer.push(totals.words.to_string());
-        }
-
-        if self.chars {
-            footer.push(totals.chars.to_string());
-        }
-
-        if self.bytes {
-            footer.push(totals.bytes.to_string());
-        }
-
-        footer
+        self.selected_columns([
+            "Total".to_string(),
+            totals.lines.to_string(),
+            totals.words.to_string(),
+            totals.chars.to_string(),
+            totals.bytes.to_string(),
+        ])
     }
 
     fn build_alignments(&self) -> Vec<Alignment> {
-        let mut alignments = Vec::with_capacity(5);
-
-        if self.path {
-            alignments.push(Alignment::Left);
-        }
-
-        if self.lines {
-            alignments.push(Alignment::Right);
-        }
-
-        if self.words {
-            alignments.push(Alignment::Right);
-        }
-
-        if self.chars {
-            alignments.push(Alignment::Right);
-        }
-
-        if self.bytes {
-            alignments.push(Alignment::Right);
-        }
-
-        alignments
+        self.selected_columns([
+            Alignment::Left,
+            Alignment::Right,
+            Alignment::Right,
+            Alignment::Right,
+            Alignment::Right,
+        ])
     }
 }
 
