@@ -21,9 +21,9 @@ macro_rules! define_languages {
                 }
             }
 
-            /// Parse a [`Language`] from a [file-path][std::path::PathBuf]
-            pub fn from_path(path: &std::path::PathBuf) -> Language {
-                let extension = match path.extension().and_then(|ext| ext.to_str()) {
+            /// Parse a [`Language`] from a file-path
+            pub fn from_path<P: AsRef<std::path::Path>>(path: P) -> Language {
+                let extension = match path.as_ref().extension().and_then(|ext| ext.to_str()) {
                     Some(ext) => ext,
                     None => return Language::Text,
                 };
