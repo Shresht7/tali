@@ -4,7 +4,7 @@ use clap::Parser;
 #[derive(Debug, Parser)]
 #[command(author, version, about)]
 pub struct Args {
-    /// The path to scan (defaults to the current directory)
+    /// The paths to scan (defaults to the current directory)
     #[arg(default_value = ".")]
     pub paths: Vec<std::path::PathBuf>,
 
@@ -16,7 +16,7 @@ pub struct Args {
     #[clap(short, long)]
     pub words: bool,
 
-    /// Show character count
+    /// Show char count
     #[clap(short, long)]
     pub chars: bool,
 
