@@ -13,6 +13,7 @@ pub struct Table {
     rows: Vec<Vec<String>>,
     footer: Vec<String>,
     separator: String,
+    vertical_separator: String,
     col_widths: Vec<usize>,
     alignments: Vec<Alignment>,
 }
@@ -44,6 +45,7 @@ impl Table {
             rows,
             footer: Vec::new(),
             separator,
+            vertical_separator: "-".into(),
             col_widths,
             alignments,
         }
@@ -79,6 +81,16 @@ impl Table {
         self
     }
 
+    fn format_vertical_separator(&self) -> String {
+        self.col_widths
+            .iter()
+            .map(|w| self.vertical_separator.repeat(*w))
+            .collect::<Vec<_>>()
+            .join(&self.vertical_separator.repeat(self.separator.len()))
+            + &self.vertical_separator
+            + "\n"
+    }
+
     fn format_cell(&self, text: &str, width: usize, alignment: Option<&Alignment>) -> String {
         let visible_width = ansi::visible_width(text);
         let width = if visible_width < width {
@@ -106,11 +118,24 @@ impl Table {
 
     pub fn display(&self) -> String {
         let mut res = String::new();
-        res.push_str(&self.format_row(&self.header));
+
+        // Format Header
+        if !self.header.is_empty() {
+            res.push_str(&self.format_row(&self.header));
+            res.push_str(&self.format_vertical_separator());
+        }
+
+        // Format Rows
         for row in &self.rows {
             res.push_str(&self.format_row(row));
         }
-        res.push_str(&self.format_row(&self.footer));
+
+        // Format Footer
+        if !self.footer.is_empty() {
+            res.push_str(&self.format_vertical_separator());
+            res.push_str(&self.format_row(&self.footer));
+        }
+
         res
     }
 }
