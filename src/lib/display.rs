@@ -32,7 +32,7 @@ impl Default for Display {
 
 impl Display {
     /// Sets whether to group output by language
-    pub fn group_by_language(mut self, yes: bool) -> Self {
+    pub fn group_by_language(&mut self, yes: bool) -> &mut Self {
         self.group_by_language = yes;
         self
     }
