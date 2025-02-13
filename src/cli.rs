@@ -23,4 +23,8 @@ pub struct Args {
     /// Show byte count
     #[clap(short, long)]
     pub bytes: bool,
+
+    /// Disable ANSI colors
+    #[clap(short, long, default_value_t = std::env::var("NO_COLOR").is_ok_and(|v| v.to_lowercase() == "true"))]
+    pub no_color: bool,
 }

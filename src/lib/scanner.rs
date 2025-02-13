@@ -104,6 +104,8 @@ pub struct Display {
     pub words: bool,
     pub chars: bool,
     pub bytes: bool,
+
+    pub use_colors: bool,
 }
 
 impl Default for Display {
@@ -115,6 +117,7 @@ impl Default for Display {
             words: true,
             chars: true,
             bytes: true,
+            use_colors: true,
         }
     }
 }
