@@ -12,6 +12,8 @@ pub struct Display {
     pub words: bool,
     pub chars: bool,
     pub bytes: bool,
+    pub language: bool,
+    pub visualization: bool,
 
     pub use_colors: bool,
 }
@@ -25,6 +27,8 @@ impl Default for Display {
             words: true,
             chars: true,
             bytes: true,
+            language: true,
+            visualization: true,
             use_colors: true,
         }
     }
@@ -98,7 +102,14 @@ impl Display {
         T::IntoIter: ExactSizeIterator,
         T::Item: Clone,
     {
-        let options = [self.path, self.lines, self.words, self.chars, self.bytes];
+        let options = [
+            self.language,
+            self.path,
+            self.lines,
+            self.words,
+            self.chars,
+            self.bytes,
+        ];
         values
             .into_iter()
             .enumerate()
@@ -107,11 +118,22 @@ impl Display {
     }
 
     fn build_header(&self) -> Vec<String> {
-        self.selected_columns(["Path", "Lines", "Words", "Chars", "Bytes"].map(String::from))
+        self.selected_columns(
+            ["Language", "Path", "Lines", "Words", "Chars", "Bytes"].map(String::from),
+        )
     }
 
     fn build_row(&self, file: &File) -> String {
         let mut cols = Vec::new();
+
+        if self.language {
+            let lang = if self.use_colors {
+                color(&file.language, &file.language.to_string())
+            } else {
+                file.language.to_string()
+            };
+            cols.push(lang);
+        }
 
         if self.path {
             cols.push(file.path.to_string_lossy().to_string());
@@ -139,6 +161,7 @@ impl Display {
     fn build_footer(&self, totals: &Totals) -> Vec<String> {
         self.selected_columns([
             "Total".to_string(),
+            "".to_string(),
             totals.lines.to_string(),
             totals.words.to_string(),
             totals.chars.to_string(),
@@ -148,6 +171,7 @@ impl Display {
 
     fn build_alignments(&self) -> Vec<Alignment> {
         self.selected_columns([
+            Alignment::Right,
             Alignment::Left,
             Alignment::Right,
             Alignment::Right,
