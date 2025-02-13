@@ -1,10 +1,10 @@
 /// Describe a macro to generate the [`Language`] enum
 macro_rules! define_languages {
     ( $(
-        $language:ident from [$($extension:literal),*]
-        $(with RGB($colorR:expr, $colorG:expr, $colorB:expr))?
-        $(as $display:literal)?
-    ),* $(,)? ) => {
+        $language:ident from [$($extension:literal),*]              // Matches: Rust from ["rs",...]
+        $(with RGB($colorR:expr, $colorG:expr, $colorB:expr))?      // Matches: with RGB(255, 165, 0)
+        $(as $display:literal)?                                     // (Optionally) Matches: as RS
+    ),* $(,)? ) => {                                                // Matches: ,
         #[derive(Debug, Clone, PartialEq, Eq, Hash)]
         pub enum Language {
             $($language),*,
@@ -12,6 +12,7 @@ macro_rules! define_languages {
         }
 
         impl Language {
+            /// Parse a [`Language`] from a file-extension
             pub fn from_extension(ext: &str) -> Language {
                 let ext = ext.to_lowercase();
                 match ext.as_str() {
@@ -20,6 +21,7 @@ macro_rules! define_languages {
                 }
             }
 
+            /// Parse a [`Language`] from a [file-path][std::path::PathBuf]
             pub fn from_path(path: &std::path::PathBuf) -> Language {
                 let extension = match path.extension().and_then(|ext| ext.to_str()) {
                     Some(ext) => ext,
@@ -28,6 +30,7 @@ macro_rules! define_languages {
                 Language::from_extension(extension)
             }
 
+            /// Get the RGB color associated with the language
             pub fn color(&self) -> (u8, u8, u8) {
                 match self {
                     $(Language::$language => define_languages!(@color $($colorR, $colorG, $colorB)?),)*
