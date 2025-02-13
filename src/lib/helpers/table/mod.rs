@@ -28,35 +28,18 @@ impl Table {
                     .collect()
             })
             .collect();
-
-        let col_count = rows.iter().map(|row| row.len()).max().unwrap_or(0);
-        let alignments = vec![Alignment::Left; col_count];
-        let mut col_widths = vec![0; col_count];
-
-        for row in &rows {
-            for (i, cell) in row.iter().enumerate() {
-                col_widths[i] = std::cmp::max(col_widths[i], ansi::visible_width(cell));
-            }
-        }
-
         Table {
-            header: Vec::new(),
             rows,
-            footer: Vec::new(),
-            col_widths,
-            alignments,
             ..Default::default()
         }
     }
 
     pub fn with_header(&mut self, header: Vec<String>) -> &mut Self {
-        self.update_col_widths(&header);
         self.header = header;
         self
     }
 
     pub fn with_footer(&mut self, footer: Vec<String>) -> &mut Self {
-        self.update_col_widths(&footer);
         self.footer = footer;
         self
     }
@@ -66,15 +49,27 @@ impl Table {
         self
     }
 
-    fn update_col_widths(&mut self, row: &Vec<String>) -> &mut Self {
-        for (i, cell) in row.iter().enumerate() {
-            self.col_widths[i] = std::cmp::max(self.col_widths[i], ansi::visible_width(cell));
+    fn calculate_col_widths(&mut self) {
+        let iterator = self
+            .rows
+            .iter()
+            .chain(std::iter::once(&self.header))
+            .chain(std::iter::once(&self.footer));
+
+        let col_count = iterator.clone().map(|row| row.len()).max().unwrap_or(0);
+        self.col_widths.resize(col_count.clone(), 0);
+
+        for row in iterator {
+            for (i, cell) in row.iter().enumerate() {
+                self.col_widths[i] = std::cmp::max(
+                    self.col_widths.get(i).copied().unwrap_or(0),
+                    ansi::visible_width(cell),
+                );
+            }
         }
-        self
     }
 
     pub fn add_row(&mut self, row: Vec<String>) -> &mut Self {
-        self.update_col_widths(&row);
         self.rows.push(row);
         self
     }
@@ -116,8 +111,11 @@ impl Table {
         res
     }
 
-    pub fn display(&self) -> String {
+    pub fn display(&mut self) -> String {
         let mut res = String::new();
+
+        // Calculate column widths
+        self.calculate_col_widths();
 
         // Format Header
         if !self.header.is_empty() {
