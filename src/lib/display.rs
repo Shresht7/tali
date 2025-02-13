@@ -71,19 +71,17 @@ impl Display {
         self
     }
 
-    pub fn display(&self, results: ScanResults) -> String {
+    pub fn display(&self, results: &ScanResults) -> String {
         let mut res = String::new();
-        let mut totals = Totals::default();
         let max_bytes = results.files.iter().map(|f| f.bytes).max().unwrap_or(1);
 
         let header = self.build_header();
 
         for file in &results.files {
             res.push_str(&self.build_row(file, max_bytes));
-            totals.add(file);
         }
 
-        let footer = self.build_footer(&totals);
+        let footer = self.build_footer(&results);
 
         let alignments = self.build_alignments();
 
@@ -171,14 +169,14 @@ impl Display {
         cols.join("\t") + "\n"
     }
 
-    fn build_footer(&self, totals: &Totals) -> Vec<String> {
+    fn build_footer(&self, results: &ScanResults) -> Vec<String> {
         self.selected_columns([
             "Total".to_string(),
             "".to_string(),
-            totals.lines.to_string(),
-            totals.words.to_string(),
-            totals.chars.to_string(),
-            totals.bytes.to_string(),
+            results.total.lines.to_string(),
+            results.total.words.to_string(),
+            results.total.chars.to_string(),
+            results.total.bytes.to_string(),
         ])
     }
 
@@ -192,26 +190,6 @@ impl Display {
             Alignment::Right,
             Alignment::Left,
         ])
-    }
-}
-
-/// Helper struct for accumulating totals
-#[derive(Default)]
-struct Totals {
-    files: usize,
-    lines: usize,
-    words: usize,
-    chars: usize,
-    bytes: u64,
-}
-
-impl Totals {
-    fn add(&mut self, file: &File) {
-        self.files += 1;
-        self.lines += file.lines;
-        self.words += file.words;
-        self.chars += file.chars;
-        self.bytes += file.bytes;
     }
 }
 

@@ -11,10 +11,15 @@ pub fn scan<P: AsRef<std::path::Path>>(paths: &[P]) -> std::io::Result<ScanResul
     // A vector to collect the files
     let mut files = Vec::new();
 
+    // Accumulators
+    let mut total = Totals::default();
+
     for path in paths {
         if path.as_ref().is_file() {
-            // Parse the file and add to the collection
-            files.push(File::scan(path)?)
+            // Parse the file, accumulate stats, and add to the collection
+            let file = File::scan(path)?;
+            total.add(&file);
+            files.push(file);
         } else {
             // Build a directory walker that respects `.gitignore` and other hidden files
             let walker = ignore::WalkBuilder::new(&path).build();
@@ -23,8 +28,9 @@ pub fn scan<P: AsRef<std::path::Path>>(paths: &[P]) -> std::io::Result<ScanResul
             for result in walker {
                 match result {
                     Ok(entry) if entry.path().is_file() => {
-                        // Parse the file and add it to the collection
+                        // Parse the file, accumulate stats, and add it to the collection
                         let file = File::scan(entry.path())?;
+                        total.add(&file);
                         files.push(file);
                     }
 
@@ -35,7 +41,7 @@ pub fn scan<P: AsRef<std::path::Path>>(paths: &[P]) -> std::io::Result<ScanResul
         }
     }
 
-    Ok(ScanResults { files })
+    Ok(ScanResults { files, total })
 }
 
 // ------------
@@ -46,6 +52,7 @@ pub fn scan<P: AsRef<std::path::Path>>(paths: &[P]) -> std::io::Result<ScanResul
 #[derive(Debug)]
 pub struct ScanResults {
     pub files: Vec<File>,
+    pub total: Totals,
 }
 
 impl ScanResults {
@@ -61,5 +68,25 @@ impl ScanResults {
         }
 
         groups
+    }
+}
+
+/// Helper struct for accumulating totals
+#[derive(Debug, Default)]
+pub struct Totals {
+    pub files: usize,
+    pub lines: usize,
+    pub words: usize,
+    pub chars: usize,
+    pub bytes: u64,
+}
+
+impl Totals {
+    fn add(&mut self, file: &File) {
+        self.files += 1;
+        self.lines += file.lines;
+        self.words += file.words;
+        self.chars += file.chars;
+        self.bytes += file.bytes;
     }
 }

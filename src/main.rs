@@ -32,6 +32,6 @@ fn run(args: &cli::Args) -> std::io::Result<()> {
     }
 
     // Print the formatted output
-    println!("{}", display.display(results));
+    println!("{}", display.display(&results));
     Ok(())
 }
