@@ -1,4 +1,4 @@
-use crate::helpers::ansi;
+use super::ansi;
 
 /// Represents the column widths of a table
 #[derive(Debug, Default)]
