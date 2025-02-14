@@ -1,7 +1,10 @@
-use crate::{language::Language, File, ScanResults};
-
-mod helpers;
-use helpers::table::{Alignment, Table};
+use crate::{
+    helpers::{
+        language::Language,
+        table::{Alignment, Table},
+    },
+    scanner::{File, ScanResults},
+};
 
 #[derive(Debug)]
 pub struct Display {

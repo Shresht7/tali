@@ -1,6 +1,6 @@
 use std::io::BufRead;
 
-use crate::language::Language;
+use crate::helpers::language::Language;
 
 /// Represents a scanned file and its computed metrics.
 ///

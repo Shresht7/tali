@@ -1,6 +1,9 @@
 use std::collections::HashMap;
 
-use crate::{file::File, language::Language};
+use crate::helpers::language::Language;
+
+mod file;
+pub use file::*;
 
 // -------
 // SCANNER
