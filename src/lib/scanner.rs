@@ -54,8 +54,11 @@ pub fn scan<P: AsRef<std::path::Path>>(paths: &[P]) -> std::io::Result<ScanResul
 /// Represents the aggregate scan results
 #[derive(Debug)]
 pub struct ScanResults {
+    /// The collection of all file results containing information like the number of lines, words, chars and bytes
     pub files: Vec<File>,
+    /// The aggregate total number of lines, words, chars and bytes
     pub total: Totals,
+    /// The max values for the number of lines, words, chars, and bytes across the results
     pub max: Max,
 }
 
@@ -79,7 +82,7 @@ impl ScanResults {
 // ACCUMULATORS
 // ------------
 
-/// Helper struct for accumulating totals
+/// Represents the accumulated total number of lines, words, chars and bytes in [`ScanResults`]
 #[derive(Debug, Default)]
 pub struct Totals {
     pub files: usize,
@@ -90,6 +93,7 @@ pub struct Totals {
 }
 
 impl Totals {
+    /// Add the [`File`] statistics to the totals accumulator
     fn add(&mut self, file: &File) {
         self.files += 1;
         self.lines += file.lines;
@@ -99,7 +103,7 @@ impl Totals {
     }
 }
 
-/// Helper struct to accumulate max
+/// Represents the max values for the number of lines, words, chars and bytes in [`ScanResults`]
 #[derive(Debug, Default)]
 pub struct Max {
     pub lines: usize,
@@ -109,6 +113,7 @@ pub struct Max {
 }
 
 impl Max {
+    /// Update the max values for the number of lines, words, chars and bytes by comparing it with a [`File`]
     fn track(&mut self, file: &File) {
         self.lines = self.lines.max(file.lines);
         self.words = self.words.max(file.words);
