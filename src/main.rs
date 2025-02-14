@@ -12,10 +12,10 @@ fn main() -> std::io::Result<()> {
 /// Run the main logic of the application by scanning the provided paths and then displaying the results.
 fn run(args: &cli::Args) -> std::io::Result<()> {
     // Scan the paths for the metrics
-    let results = loc::scan(&args.paths)?;
+    let results = tali::scan(&args.paths)?;
 
     // Create a default display configuration
-    let mut display = loc::Display::default();
+    let mut display = tali::Display::default();
 
     // If all the flags are false, then do nothing and just use the defaults
     let show_all = vec![args.lines, args.words, args.chars, args.bytes]

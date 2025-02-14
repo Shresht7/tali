@@ -1,3 +1,3 @@
-# `loc`
+# `tali`
 
 Counts lines of code
