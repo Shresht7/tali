@@ -6,13 +6,13 @@ use crate::{
     scanner::{File, ScanResults},
 };
 
-use super::{Display, Formatter};
+use super::{Formatter, Output};
 
 #[derive(Debug, Default)]
 pub struct TableFormatter {}
 
 impl Formatter for TableFormatter {
-    fn format(&self, results: &ScanResults, config: &Display) -> String {
+    fn format(&self, results: &ScanResults, config: &Output) -> String {
         let mut res = String::new();
 
         let header = self.build_header(config);
@@ -37,7 +37,7 @@ impl Formatter for TableFormatter {
 
 impl TableFormatter {
     // Helper function to select columns
-    fn selected_columns<T>(&self, values: T, config: &Display) -> Vec<T::Item>
+    fn selected_columns<T>(&self, values: T, config: &Output) -> Vec<T::Item>
     where
         T: IntoIterator,
         T::IntoIter: ExactSizeIterator,
@@ -59,7 +59,7 @@ impl TableFormatter {
             .collect()
     }
 
-    fn build_header(&self, config: &Display) -> Vec<String> {
+    fn build_header(&self, config: &Output) -> Vec<String> {
         self.selected_columns(
             [
                 "Language", "Path", "Lines", "Words", "Chars", "Bytes", "Graph",
@@ -69,7 +69,7 @@ impl TableFormatter {
         )
     }
 
-    fn build_row(&self, file: &File, results: &ScanResults, config: &Display) -> String {
+    fn build_row(&self, file: &File, results: &ScanResults, config: &Output) -> String {
         let mut cols = Vec::new();
 
         if config.language {
@@ -117,7 +117,7 @@ impl TableFormatter {
         cols.join("\t") + "\n"
     }
 
-    fn build_footer(&self, results: &ScanResults, config: &Display) -> Vec<String> {
+    fn build_footer(&self, results: &ScanResults, config: &Output) -> Vec<String> {
         self.selected_columns(
             [
                 "Total".to_string(),
@@ -131,7 +131,7 @@ impl TableFormatter {
         )
     }
 
-    fn build_alignments(&self, config: &Display) -> Vec<Alignment> {
+    fn build_alignments(&self, config: &Output) -> Vec<Alignment> {
         self.selected_columns(
             [
                 Alignment::Right,

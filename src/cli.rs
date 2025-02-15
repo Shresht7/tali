@@ -1,6 +1,6 @@
 use clap::Parser;
 
-use tali::display::Display;
+use tali::output::Output;
 
 /// A structural representation of the command-line arguments
 #[derive(Debug, Parser)]
@@ -40,7 +40,7 @@ pub struct Args {
 
     /// The output format
     #[clap(short, long, default_value = "table")]
-    pub format: tali::display::Format,
+    pub format: tali::output::Format,
 }
 
 impl Args {
@@ -70,7 +70,7 @@ impl Args {
     }
 }
 
-impl From<&Args> for Display {
+impl From<&Args> for Output {
     fn from(args: &Args) -> Self {
         Self {
             group_by_language: false,
