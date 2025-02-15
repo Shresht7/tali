@@ -38,6 +38,9 @@ pub struct Config {
     pub visualization: bool,
     pub use_colors: bool,
     pub format: Format,
+    pub header: bool,
+    pub footer: bool,
+    pub alignment: bool,
 }
 
 impl Default for Config {
@@ -53,6 +56,9 @@ impl Default for Config {
             visualization: true,
             use_colors: true,
             format: Format::Table,
+            header: true,
+            footer: true,
+            alignment: true,
         }
     }
 }

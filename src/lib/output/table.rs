@@ -15,21 +15,26 @@ impl Formatter for TableFormatter {
     fn format(&self, results: &ScanResults, config: &Config) -> String {
         let mut res = String::new();
 
-        let header = self.build_header(config);
-
         for file in &results.files {
             res.push_str(&self.build_row(file, &results, config));
         }
 
-        let footer = self.build_footer(&results, config);
-
-        let alignments = self.build_alignments(config);
-
         let mut table = Table::from_tsv(&res);
-        table
-            .with_header(header)
-            .with_footer(footer)
-            .with_alignments(alignments);
+
+        if config.header {
+            let header = self.build_header(config);
+            table.with_header(header);
+        }
+
+        if config.footer {
+            let footer = self.build_footer(&results, config);
+            table.with_footer(footer);
+        }
+
+        if config.alignment {
+            let alignments = self.build_alignments(config);
+            table.with_alignments(alignments);
+        }
 
         table.display()
     }

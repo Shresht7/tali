@@ -34,13 +34,25 @@ pub struct Args {
     #[clap(short, long, aliases = ["graph", "vis"])]
     pub visualization: bool,
 
-    /// Disable ANSI colors
-    #[clap(short, long, alias="plain", default_value_t = std::env::var("NO_COLOR").is_ok_and(|v| v.to_lowercase() == "true"))]
-    pub no_color: bool,
-
     /// The output format
     #[clap(short, long, default_value = "table")]
     pub format: tali::output::Format,
+
+    /// Disable the header row
+    #[clap(long, default_value_t = false)]
+    pub no_header: bool,
+
+    /// Disable the footer row
+    #[clap(long, default_value_t = false)]
+    pub no_footer: bool,
+
+    /// Disable the table columns
+    #[clap(long, default_value_t = false)]
+    pub no_align: bool,
+
+    /// Disable ANSI colors
+    #[clap(short, long, alias="plain", default_value_t = std::env::var("NO_COLOR").is_ok_and(|v| v.to_lowercase() == "true"))]
+    pub no_color: bool,
 }
 
 impl Args {
@@ -83,6 +95,9 @@ impl From<&Args> for Config {
             visualization: args.visualization,
             use_colors: !args.no_color,
             format: args.format,
+            header: !args.no_header,
+            footer: !args.no_footer,
+            alignment: !args.no_align,
         }
     }
 }
