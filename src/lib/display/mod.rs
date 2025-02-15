@@ -23,7 +23,7 @@ pub struct Display {
     pub language: bool,
     pub visualization: bool,
     pub use_colors: bool,
-    format: Format,
+    pub format: Format,
 }
 
 impl Default for Display {

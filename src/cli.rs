@@ -1,4 +1,5 @@
 use clap::Parser;
+use tali::display::Display;
 
 /// A structural representation of the command-line arguments
 #[derive(Debug, Parser)]
@@ -55,5 +56,22 @@ impl Args {
         }
 
         self
+    }
+}
+
+impl From<&Args> for Display {
+    fn from(args: &Args) -> Self {
+        Self {
+            group_by_language: false,
+            path: true,
+            language: true,
+            lines: args.lines,
+            words: args.words,
+            chars: args.chars,
+            bytes: args.bytes,
+            visualization: args.visualization,
+            use_colors: !args.no_color,
+            format: tali::display::Format::Table,
+        }
     }
 }
