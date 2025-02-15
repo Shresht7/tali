@@ -15,9 +15,9 @@ fn run(args: &cli::Args) -> std::io::Result<()> {
     let results = tali::scanner::scan(&args.paths)?;
 
     // Setup the display/output configuration from the command-line arguments
-    let output = tali::output::Output::from(args);
+    let config = tali::output::Config::from(args);
 
     // Print the formatted output
-    println!("{}", output.display(&results));
+    println!("{}", tali::output::display(&results, &config));
     Ok(())
 }

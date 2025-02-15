@@ -1,6 +1,6 @@
 use clap::Parser;
 
-use tali::output::Output;
+use tali::output::Config;
 
 /// A structural representation of the command-line arguments
 #[derive(Debug, Parser)]
@@ -70,7 +70,7 @@ impl Args {
     }
 }
 
-impl From<&Args> for Output {
+impl From<&Args> for Config {
     fn from(args: &Args) -> Self {
         Self {
             group_by_language: false,

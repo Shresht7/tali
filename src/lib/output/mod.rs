@@ -6,7 +6,7 @@ mod table;
 use table::*;
 
 pub trait Formatter {
-    fn format(&self, results: &ScanResults, config: &Output) -> String;
+    fn format(&self, results: &ScanResults, config: &Config) -> String;
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -27,7 +27,7 @@ impl std::str::FromStr for Format {
 }
 
 #[derive(Debug)]
-pub struct Output {
+pub struct Config {
     pub group_by_language: bool,
     pub path: bool,
     pub lines: bool,
@@ -40,7 +40,7 @@ pub struct Output {
     pub format: Format,
 }
 
-impl Default for Output {
+impl Default for Config {
     fn default() -> Self {
         Self {
             group_by_language: false,
@@ -57,7 +57,7 @@ impl Default for Output {
     }
 }
 
-impl Output {
+impl Config {
     /// Sets whether to group output by language
     pub fn group_by_language(&mut self, yes: bool) -> &mut Self {
         self.group_by_language = yes;
@@ -103,11 +103,11 @@ impl Output {
         self.visualization = yes;
         self
     }
+}
 
-    pub fn display(&self, results: &ScanResults) -> String {
-        match self.format {
-            Format::Table => TableFormatter::default().format(results, &self),
-            Format::JSON => JSONFormatter::default().format(results, &self),
-        }
+pub fn display(results: &ScanResults, config: &Config) -> String {
+    match config.format {
+        Format::Table => TableFormatter::default().format(results, config),
+        Format::JSON => JSONFormatter::default().format(results, config),
     }
 }

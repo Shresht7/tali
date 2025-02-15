@@ -1,10 +1,10 @@
-use super::{Formatter, Output};
+use super::{Config, Formatter};
 
 #[derive(Default, Debug)]
 pub struct JSONFormatter {}
 
 impl Formatter for JSONFormatter {
-    fn format(&self, results: &crate::scanner::ScanResults, _config: &Output) -> String {
+    fn format(&self, results: &crate::scanner::ScanResults, _config: &Config) -> String {
         serde_json::to_string_pretty(&results).unwrap_or_default()
     }
 }
