@@ -4,7 +4,7 @@ mod cli;
 
 /// The main entry-point of the application
 fn main() -> std::io::Result<()> {
-    let args = cli::Args::parse();
+    let args = cli::Args::parse().process();
     run(&args)?;
     Ok(())
 }
@@ -16,20 +16,11 @@ fn run(args: &cli::Args) -> std::io::Result<()> {
 
     // Create a default display configuration
     let mut display = tali::display::Display::default();
-
-    // If all the flags are false, then do nothing and just use the defaults
-    let show_all = vec![args.lines, args.words, args.chars, args.bytes]
-        .iter()
-        .all(|toggle| toggle == &false);
-
-    // If even a single flag was specified, then adhere to that selection and override the defaults
-    if !show_all {
-        display
-            .lines(args.lines)
-            .words(args.words)
-            .chars(args.chars)
-            .bytes(args.bytes);
-    }
+    display
+        .lines(args.lines)
+        .words(args.words)
+        .chars(args.chars)
+        .bytes(args.bytes);
 
     // Print the formatted output
     println!("{}", display.display(&results));

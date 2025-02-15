@@ -28,3 +28,21 @@ pub struct Args {
     #[clap(short, long, default_value_t = std::env::var("NO_COLOR").is_ok_and(|v| v.to_lowercase() == "true"))]
     pub no_color: bool,
 }
+
+impl Args {
+    pub fn process(mut self) -> Self {
+        // If all the flags are false, then do nothing and just use the defaults
+        let show_all = vec![self.lines, self.words, self.chars, self.bytes]
+            .iter()
+            .all(|toggle| *toggle == false);
+
+        if show_all {
+            self.lines = true;
+            self.words = true;
+            self.chars = true;
+            self.bytes = true;
+        }
+
+        self
+    }
+}
