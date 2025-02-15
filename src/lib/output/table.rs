@@ -107,8 +107,8 @@ impl TableFormatter {
         }
 
         if config.visualization {
-            let filled = "█";
-            let blank = "░";
+            let filled = "▬";
+            let blank = " ";
             let bar_length = (file.bytes as f64 / results.max.bytes as f64 * 20.0).round() as usize;
             let bar = filled.repeat(bar_length) + &blank.repeat(20 - bar_length);
             let bar = if config.use_colors {
