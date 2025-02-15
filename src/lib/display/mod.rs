@@ -1,5 +1,7 @@
 use crate::scanner::ScanResults;
 
+mod json;
+use json::*;
 mod table;
 use table::*;
 
@@ -10,6 +12,7 @@ pub trait Formatter {
 #[derive(Debug, Clone, Copy)]
 pub enum Format {
     Table,
+    JSON,
 }
 
 impl std::str::FromStr for Format {
@@ -17,6 +20,7 @@ impl std::str::FromStr for Format {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "table" => Ok(Self::Table),
+            "json" => Ok(Self::JSON),
             x => Err(format!("Unsupported Format: {x}")),
         }
     }
@@ -103,6 +107,7 @@ impl Display {
     pub fn display(&self, results: &ScanResults) -> String {
         match self.format {
             Format::Table => TableFormatter::default().format(results, &self),
+            Format::JSON => JSONFormatter::default().format(results, &self),
         }
     }
 }
