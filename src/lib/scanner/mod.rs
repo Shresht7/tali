@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use serde::Serialize;
+
 use crate::helpers::language::Language;
 
 mod file;
@@ -55,7 +57,7 @@ pub fn scan<P: AsRef<std::path::Path>>(paths: &[P]) -> std::io::Result<ScanResul
 // ------------
 
 /// Represents the aggregate scan results
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct ScanResults {
     /// The collection of all file results containing information like the number of lines, words, chars and bytes
     pub files: Vec<File>,
@@ -86,7 +88,7 @@ impl ScanResults {
 // ------------
 
 /// Represents the accumulated total number of lines, words, chars and bytes in [`ScanResults`]
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Serialize)]
 pub struct Totals {
     pub files: usize,
     pub lines: usize,
@@ -107,7 +109,7 @@ impl Totals {
 }
 
 /// Represents the max values for the number of lines, words, chars and bytes in [`ScanResults`]
-#[derive(Debug, Default)]
+#[derive(Debug, Default, Serialize)]
 pub struct Max {
     pub lines: usize,
     pub words: usize,

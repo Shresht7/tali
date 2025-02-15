@@ -1,5 +1,7 @@
 use std::io::BufRead;
 
+use serde::Serialize;
+
 use crate::helpers::language::Language;
 
 /// Represents a scanned file and its computed metrics.
@@ -10,7 +12,7 @@ use crate::helpers::language::Language;
 /// - `chars`: The total number of Unicode characters (excluding newline characters).
 /// - `bytes`: The total number of bytes (queried from file [`metadata`][std::fs::Metadata]).
 /// - `language`: The [`language`][Language] detected from the file extension.
-#[derive(Debug)]
+#[derive(Debug, Serialize)]
 pub struct File {
     /// The path to the file
     pub path: std::path::PathBuf,

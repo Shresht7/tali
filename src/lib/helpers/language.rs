@@ -1,3 +1,5 @@
+use serde::Serialize;
+
 /// Describe a macro to generate the [`Language`] enum
 macro_rules! define_languages {
     ( $(
@@ -6,7 +8,7 @@ macro_rules! define_languages {
         from [$($extension:literal),*]                              // Matches: from ["rs", ...]        | file-extension list
         $(with RGB($colorR:expr, $colorG:expr, $colorB:expr))?      // Matches: with RGB(255, 165, 0)   | RGB color for the language
     ),* $(,)? ) => {                                                // Matches: ,                       | Optional trailing comma
-        #[derive(Debug, Clone, PartialEq, Eq, Hash)]
+        #[derive(Debug, Serialize, Clone, PartialEq, Eq, Hash)]
         pub enum Language {
             $($language),*,
             Unknown(String),
