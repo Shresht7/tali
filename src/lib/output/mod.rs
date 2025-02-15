@@ -12,6 +12,7 @@ pub trait Formatter {
 #[derive(Debug, Clone, Copy)]
 pub enum Format {
     Table,
+    Plain,
     JSON,
 }
 
@@ -20,6 +21,7 @@ impl std::str::FromStr for Format {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s {
             "table" => Ok(Self::Table),
+            "plain" => Ok(Self::Plain),
             "json" => Ok(Self::JSON),
             x => Err(format!("Unsupported Format: {x}")),
         }
@@ -111,9 +113,17 @@ impl Config {
     }
 }
 
-pub fn display(results: &ScanResults, config: &Config) -> String {
+pub fn display(results: &ScanResults, mut config: Config) -> String {
     match config.format {
-        Format::Table => TableFormatter::default().format(results, config),
-        Format::JSON => JSONFormatter::default().format(results, config),
+        Format::Table => TableFormatter::default().format(results, &config),
+        Format::Plain => {
+            config.header = false;
+            config.footer = false;
+            config.visualization = false;
+            config.use_colors = false;
+            config.alignment = false;
+            TableFormatter::default().format(results, &config)
+        }
+        Format::JSON => JSONFormatter::default().format(results, &config),
     }
 }
