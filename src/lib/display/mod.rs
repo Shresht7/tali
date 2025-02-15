@@ -7,9 +7,19 @@ pub trait Formatter {
     fn format(&self, results: &ScanResults, config: &Display) -> String;
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone, Copy)]
 pub enum Format {
     Table,
+}
+
+impl std::str::FromStr for Format {
+    type Err = String;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "table" => Ok(Self::Table),
+            x => Err(format!("Unsupported Format: {x}")),
+        }
+    }
 }
 
 #[derive(Debug)]

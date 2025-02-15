@@ -1,4 +1,5 @@
 use clap::Parser;
+
 use tali::display::Display;
 
 /// A structural representation of the command-line arguments
@@ -36,6 +37,10 @@ pub struct Args {
     /// Disable ANSI colors
     #[clap(short, long, alias="plain", default_value_t = std::env::var("NO_COLOR").is_ok_and(|v| v.to_lowercase() == "true"))]
     pub no_color: bool,
+
+    /// The output format
+    #[clap(short, long, default_value = "table")]
+    pub format: tali::display::Format,
 }
 
 impl Args {
@@ -77,7 +82,7 @@ impl From<&Args> for Display {
             bytes: args.bytes,
             visualization: args.visualization,
             use_colors: !args.no_color,
-            format: tali::display::Format::Table,
+            format: args.format,
         }
     }
 }
