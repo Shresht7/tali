@@ -106,7 +106,12 @@ impl TableFormatter {
             let blank = "░";
             let bar_length = (file.bytes as f64 / results.max.bytes as f64 * 20.0).round() as usize;
             let bar = filled.repeat(bar_length) + &blank.repeat(20 - bar_length);
-            cols.push(color(&file.language, &bar));
+            let bar = if config.use_colors {
+                color(&file.language, &bar)
+            } else {
+                bar
+            };
+            cols.push(bar);
         }
 
         cols.join("\t") + "\n"

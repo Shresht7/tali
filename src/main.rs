@@ -20,7 +20,9 @@ fn run(args: &cli::Args) -> std::io::Result<()> {
         .lines(args.lines)
         .words(args.words)
         .chars(args.chars)
-        .bytes(args.bytes);
+        .bytes(args.bytes)
+        .color(!args.no_color)
+        .visualization(args.visualization);
 
     // Print the formatted output
     println!("{}", display.display(&results));

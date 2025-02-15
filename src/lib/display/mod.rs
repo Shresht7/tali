@@ -80,6 +80,16 @@ impl Display {
         self
     }
 
+    pub fn color(&mut self, yes: bool) -> &mut Self {
+        self.use_colors = yes;
+        self
+    }
+
+    pub fn visualization(&mut self, yes: bool) -> &mut Self {
+        self.visualization = yes;
+        self
+    }
+
     pub fn display(&self, results: &ScanResults) -> String {
         match self.format {
             Format::Table => TableFormatter::default().format(results, &self),
