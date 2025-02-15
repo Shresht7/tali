@@ -9,6 +9,10 @@ pub struct Args {
     #[arg(default_value = ".")]
     pub paths: Vec<std::path::PathBuf>,
 
+    /// Show language
+    #[clap(short('e'), long, aliases = ["lang", "kind", "type"])]
+    pub language: bool,
+
     /// Show line count
     #[clap(short, long)]
     pub lines: bool,
@@ -38,6 +42,7 @@ impl Args {
     pub fn process(mut self) -> Self {
         // If all the flags are false, then do nothing and just use the defaults
         let show_all = vec![
+            self.language,
             self.lines,
             self.words,
             self.chars,
@@ -48,6 +53,7 @@ impl Args {
         .all(|toggle| *toggle == false);
 
         if show_all {
+            self.language = true;
             self.lines = true;
             self.words = true;
             self.chars = true;
@@ -64,7 +70,7 @@ impl From<&Args> for Display {
         Self {
             group_by_language: false,
             path: true,
-            language: true,
+            language: args.language,
             lines: args.lines,
             words: args.words,
             chars: args.chars,
