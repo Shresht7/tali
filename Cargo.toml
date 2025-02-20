@@ -9,6 +9,7 @@ authors = ["Shresht7"]
 path = "src/lib/mod.rs"
 
 [dependencies]
+atty = "0.2.14"
 clap = { version = "4.5.28", features = ["derive"] }
 ignore = "0.4.23"
 serde = { version = "1.0.217", features = ["derive"] }

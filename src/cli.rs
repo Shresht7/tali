@@ -6,9 +6,8 @@ use tali::output::Config;
 #[derive(Debug, Parser)]
 #[command(author, version, about)]
 pub struct Args {
-    /// The paths to scan (defaults to the current directory)
-    #[arg(default_value = ".")]
-    pub paths: Vec<std::path::PathBuf>,
+    /// The paths to scan (defaults to the current directory or STDIN (if being redirected))
+    pub paths: Vec<String>,
 
     /// Show language
     #[clap(short('e'), long, aliases = ["lang", "kind", "type"])]
@@ -57,6 +56,18 @@ pub struct Args {
 
 impl Args {
     pub fn process(mut self) -> Self {
+        // If paths is empty, determine what the default behaviour should be
+        if self.paths.is_empty() {
+            // If STDIN is not a tty, assume input is being piped in...
+            if !atty::is(atty::Stream::Stdin) {
+                // ... then set the default value to `-` to indicate that we want to scan STDIN
+                self.paths.push("-".into())
+            } else {
+                // ... otherwise, set the default value to `.` to indicate that we want to scan the current directory
+                self.paths.push(".".into())
+            }
+        }
+
         // If all the flags are false, then do nothing and just use the defaults
         let show_all = vec![
             self.language,
