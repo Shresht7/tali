@@ -1,6 +1,6 @@
-use std::io::BufRead;
-
 use serde::Serialize;
+
+use std::io::BufRead;
 
 use crate::helpers::language::Language;
 
@@ -78,6 +78,48 @@ impl File {
             language,
         })
     }
+
+    /// Scans the given [reader][BufRead]  and computes various [metrics][File]
+    ///
+    /// The function reads the reader line-by-line, and computes the number of `lines`, `words`, `characters` and `bytes`.
+    /// The language, currently, is always assumed to be [Text][Language::Text].
+    ///
+    /// # Arguments
+    ///
+    /// * `reader` - A [BufReader][BufRead] to the contents to read
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if we fail to [read][BufRead::lines] a line from the [reader][BufRead]
+    pub fn scan_reader<R: BufRead>(reader: R) -> std::io::Result<File> {
+        // Setup the counter
+        let mut lines = 0;
+        let mut words = 0;
+        let mut chars = 0;
+        let mut bytes = 0;
+
+        // Process each line...
+        for line in reader.lines() {
+            let line = line?; // Propagate error up, if any
+            lines += 1; // Increment the line count
+            words += line.split_whitespace().count(); // Increment the word count
+            chars += line.chars().count(); // Increment the characters count
+            bytes += line.len() as u64; // Increment the number of bytes by adding the length
+        }
+        bytes += (lines as u64) - 1; // Adjust the number of bytes to account for the missing \n (consumed by reader.lines()) and remove trailing \n
+
+        let path = std::path::Path::new("STDIN").to_path_buf();
+        let language = Language::Text; // Default to plain-text for now.
+
+        Ok(File {
+            path,
+            lines,
+            words,
+            chars,
+            bytes,
+            language,
+        })
+    }
 }
 
 #[cfg(test)]
@@ -126,5 +168,23 @@ mod tests {
 
         // Perform cleanup
         cleanup(&temp_path);
+    }
+
+    #[test]
+    fn test_scan_reader_metrics() {
+        // Prepare the reader
+        let contents = "We are\nreading this from\na buffered reader";
+        let reader = std::io::Cursor::new(contents);
+
+        // Scan the reader
+        let metrics = File::scan_reader(reader).expect("Failed to scan reader");
+
+        // Check the metrics
+        assert_eq!(metrics.path.to_str(), Some("STDIN"), "Path mismatch");
+        assert_eq!(metrics.lines, 3, "Line count mismatch");
+        assert_eq!(metrics.words, 8, "Word count mismatch");
+        assert_eq!(metrics.chars, 40, "Character count mismatch");
+        assert_eq!(metrics.bytes, contents.len() as u64, "Byte count mismatch");
+        assert_eq!(metrics.language, Language::Text, "Language mismatch");
     }
 }
