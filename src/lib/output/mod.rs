@@ -4,6 +4,8 @@ mod json;
 use json::*;
 mod table;
 use table::*;
+mod delimiter;
+use delimiter::*;
 
 pub trait Formatter {
     fn format(&self, results: &ScanResults, config: &Config) -> String;
@@ -14,6 +16,8 @@ pub enum Format {
     Table,
     Plain,
     JSON,
+    TSV,
+    CSV,
 }
 
 impl std::str::FromStr for Format {
@@ -23,6 +27,8 @@ impl std::str::FromStr for Format {
             "table" => Ok(Self::Table),
             "plain" => Ok(Self::Plain),
             "json" => Ok(Self::JSON),
+            "tsv" => Ok(Self::TSV),
+            "csv" => Ok(Self::CSV),
             x => Err(format!("Unsupported Format: {x}")),
         }
     }
@@ -125,5 +131,7 @@ pub fn display(results: &ScanResults, mut config: Config) -> String {
             TableFormatter::default().format(results, &config)
         }
         Format::JSON => JSONFormatter::default().format(results, &config),
+        Format::TSV => DelimiterFormatter::with("\t").format(results, &config),
+        Format::CSV => DelimiterFormatter::with(",").format(results, &config),
     }
 }
