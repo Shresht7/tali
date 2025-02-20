@@ -1,5 +1,7 @@
 use clap::Parser;
 
+use std::io::IsTerminal;
+
 use tali::output::Config;
 
 /// A structural representation of the command-line arguments
@@ -59,7 +61,7 @@ impl Args {
         // If paths is empty, determine what the default behaviour should be
         if self.paths.is_empty() {
             // If STDIN is not a tty, assume input is being piped in...
-            if !atty::is(atty::Stream::Stdin) {
+            if !std::io::stdin().is_terminal() {
                 // ... then set the default value to `-` to indicate that we want to scan STDIN
                 self.paths.push("-".into())
             } else {
