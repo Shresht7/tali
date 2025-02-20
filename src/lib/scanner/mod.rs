@@ -21,31 +21,47 @@ pub fn scan<P: AsRef<std::path::Path>>(paths: &[P]) -> std::io::Result<ScanResul
     let mut max = Max::default();
 
     for path in paths {
-        if path.as_ref().is_file() {
-            // Parse the file, accumulate stats, and add to the collection
-            let file = File::scan(path)?;
-            total.add(&file);
-            max.track(&file);
-            files.push(file);
-        } else {
-            // Build a directory walker that respects `.gitignore` and other hidden files
-            let walker = ignore::WalkBuilder::new(&path).build();
+        match path {
+            // If the path is -, then scan STDIN
+            p if p.as_ref().to_str() == Some("-") => {
+                let reader = std::io::BufReader::new(std::io::stdin());
+                let results = File::scan_reader(reader)?;
+                total.add(&results);
+                max.track(&results);
+                files.push(results);
+            }
 
-            // Iterate over all the entries
-            for result in walker {
-                match result {
-                    Ok(entry) if entry.path().is_file() => {
-                        // Parse the file, accumulate stats, and add it to the collection
-                        let file = File::scan(entry.path())?;
-                        total.add(&file);
-                        max.track(&file);
-                        files.push(file);
+            // If path points to a file, then parse the file, accumulate stats, and add to the collection
+            p if p.as_ref().is_file() => {
+                let file = File::scan(path)?;
+                total.add(&file);
+                max.track(&file);
+                files.push(file);
+            }
+
+            // If path points to a directory, then walk the directory accumulating stats, and add them to the collection
+            p if p.as_ref().is_dir() => {
+                // Build a directory walker that respects `.gitignore` and other hidden files
+                let walker = ignore::WalkBuilder::new(&path).build();
+
+                // Iterate over all the entries
+                for result in walker {
+                    match result {
+                        Ok(entry) if entry.path().is_file() => {
+                            // Parse the file, accumulate stats, and add it to the collection
+                            let file = File::scan(entry.path())?;
+                            total.add(&file);
+                            max.track(&file);
+                            files.push(file);
+                        }
+
+                        Ok(_) => {} // Ignore directories and symlinks
+                        Err(e) => eprintln!("Error: {}", e), // Report errors
                     }
-
-                    Ok(_) => {} // Ignore directories and symlinks
-                    Err(e) => eprintln!("Error: {}", e), // Report errors
                 }
             }
+
+            _ => {} // Ignore all other cases
         }
     }
 
