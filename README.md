@@ -1,5 +1,7 @@
 # `tali`
 
+⚠️ Work-in-Progress ⚠️
+
 A command-line application to count the number of lines, words, characters and bytes in a given set of files.
 
 TODO: Add a demo screenshot/gif
