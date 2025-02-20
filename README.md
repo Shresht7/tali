@@ -79,17 +79,18 @@ The library [`src/lib`](./src/lib/) contains three modules:
 
 ### To Do
 
-- [ ] Support Reading from STDIN
+- [x] Support Reading from STDIN
 - [ ] Option to get the max line (column) width
 - [ ] Filter
 - [ ] Sort
 - [ ] Parallelization
 
-### References
+### 📕 References
 
 - https://github.com/XAMPPRocky/tokei
 - https://boyter.org/posts/sloc-cloc-code/
 - https://github.com/cgag/loc
+- https://github.com/boyter/scc
 
 ---
 
