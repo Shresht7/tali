@@ -31,6 +31,10 @@ pub struct Args {
     #[clap(short, long)]
     pub bytes: bool,
 
+    /// Group the results by language
+    #[clap(short, long, aliases=["compact", "overview"])]
+    pub group: bool,
+
     /// Show visualization
     #[clap(short, long, aliases = ["graph", "vis"])]
     pub visualization: bool,
@@ -98,8 +102,8 @@ impl Args {
 impl From<&Args> for Config {
     fn from(args: &Args) -> Self {
         Self {
-            group_by_language: false,
-            path: true,
+            group_by_language: args.group,
+            path: !args.group,
             language: args.language,
             lines: args.lines,
             words: args.words,

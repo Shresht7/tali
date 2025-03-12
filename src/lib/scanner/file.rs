@@ -12,7 +12,7 @@ use crate::helpers::language::Language;
 /// - `chars`: The total number of Unicode characters (excluding newline characters).
 /// - `bytes`: The total number of bytes (queried from file [`metadata`][std::fs::Metadata]).
 /// - `language`: The [`language`][Language] detected from the file extension.
-#[derive(Debug, Serialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct File {
     /// The path to the file
     pub path: std::path::PathBuf,
@@ -119,6 +119,20 @@ impl File {
             bytes,
             language,
         })
+    }
+}
+
+impl std::ops::Add for File {
+    type Output = File;
+    fn add(self, rhs: Self) -> Self::Output {
+        Self::Output {
+            path: rhs.path.clone(),
+            lines: self.lines + rhs.lines,
+            words: self.words + rhs.words,
+            chars: self.chars + rhs.words,
+            bytes: self.bytes + rhs.bytes,
+            language: rhs.language.clone(),
+        }
     }
 }
 

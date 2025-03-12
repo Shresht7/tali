@@ -2,8 +2,6 @@ use std::collections::HashMap;
 
 use serde::Serialize;
 
-use crate::helpers::language::Language;
-
 mod file;
 pub use file::*;
 
@@ -84,18 +82,31 @@ pub struct ScanResults {
 }
 
 impl ScanResults {
-    /// Groups the files by language and returns a [`HashMap`]
-    fn group_by_language(&self) -> HashMap<Language, Vec<&File>> {
+    /// Groups the files by language and returns a new [`ScanResults`] instance
+    pub fn group_by_language(&self) -> ScanResults {
+        // Group the files by language in a HashMap
         let mut groups = HashMap::new();
-
-        for file in &self.files {
+        for file in self.files.iter().cloned() {
             groups
                 .entry(file.language.clone())
                 .or_insert_with(Vec::new)
                 .push(file)
         }
 
-        groups
+        // Create a new condensed ScanResult
+        let mut files = Vec::new();
+        let mut total = Totals::default();
+        let mut max = Max::default();
+        for lang in groups.keys() {
+            if let Some(v) = groups.get(lang) {
+                if let Some(file) = v.iter().cloned().reduce(|acc, e| acc + e) {
+                    total.add(&file);
+                    max.track(&file);
+                    files.push(file)
+                }
+            }
+        }
+        ScanResults { files, total, max }
     }
 }
 
