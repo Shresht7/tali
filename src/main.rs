@@ -18,6 +18,6 @@ fn run(args: &cli::Args) -> std::io::Result<()> {
     let config = tali::output::Config::from(args);
 
     // Print the formatted output
-    println!("{}", tali::output::display(&results, config));
+    println!("{}", tali::output::display(results, config));
     Ok(())
 }

@@ -119,19 +119,26 @@ impl Config {
     }
 }
 
-pub fn display(results: &ScanResults, mut config: Config) -> String {
+pub fn display(results: ScanResults, mut config: Config) -> String {
+    // Reform ScanResults if we need to group by language
+    let results = if config.group_by_language {
+        results.group_by_language()
+    } else {
+        results
+    };
+    // Chose the formatter based on the configuration
     match config.format {
-        Format::Table => TableFormatter::default().format(results, &config),
+        Format::Table => TableFormatter::default().format(&results, &config),
         Format::Plain => {
             config.header = false;
             config.footer = false;
             config.visualization = false;
             config.use_colors = false;
             config.alignment = false;
-            TableFormatter::default().format(results, &config)
+            TableFormatter::default().format(&results, &config)
         }
-        Format::JSON => JSONFormatter::default().format(results, &config),
-        Format::TSV => DelimiterFormatter::with("\t").format(results, &config),
-        Format::CSV => DelimiterFormatter::with(",").format(results, &config),
+        Format::JSON => JSONFormatter::default().format(&results, &config),
+        Format::TSV => DelimiterFormatter::with("\t").format(&results, &config),
+        Format::CSV => DelimiterFormatter::with(",").format(&results, &config),
     }
 }
