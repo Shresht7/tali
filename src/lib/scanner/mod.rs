@@ -23,18 +23,20 @@ pub fn scan<P: AsRef<std::path::Path>>(paths: &[P]) -> std::io::Result<ScanResul
             // If the path is -, then scan STDIN
             p if p.as_ref().to_str() == Some("-") => {
                 let reader = std::io::BufReader::new(std::io::stdin());
-                let results = File::scan_reader(reader)?;
-                total.add(&results);
-                max.track(&results);
-                files.push(results);
+                if let Ok(results) = File::scan_reader(reader) {
+                    total.add(&results);
+                    max.track(&results);
+                    files.push(results);
+                }
             }
 
             // If path points to a file, then parse the file, accumulate stats, and add to the collection
             p if p.as_ref().is_file() => {
-                let file = File::scan(path)?;
-                total.add(&file);
-                max.track(&file);
-                files.push(file);
+                if let Ok(file) = File::scan(path) {
+                    total.add(&file);
+                    max.track(&file);
+                    files.push(file);
+                }
             }
 
             // If path points to a directory, then walk the directory accumulating stats, and add them to the collection
@@ -47,10 +49,11 @@ pub fn scan<P: AsRef<std::path::Path>>(paths: &[P]) -> std::io::Result<ScanResul
                     match result {
                         Ok(entry) if entry.path().is_file() => {
                             // Parse the file, accumulate stats, and add it to the collection
-                            let file = File::scan(entry.path())?;
-                            total.add(&file);
-                            max.track(&file);
-                            files.push(file);
+                            if let Ok(file) = File::scan(entry.path()) {
+                                total.add(&file);
+                                max.track(&file);
+                                files.push(file);
+                            }
                         }
 
                         Ok(_) => {} // Ignore directories and symlinks
