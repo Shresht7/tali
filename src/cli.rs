@@ -66,6 +66,10 @@ pub struct Args {
     /// The order in which to sort
     #[clap(long, default_value = "descending")]
     pub sort_order: SortOrder,
+
+    /// Scan hidden files
+    #[clap(short = 'a', long, alias = "all")]
+    pub hidden: bool,
 }
 
 impl Args {
