@@ -11,6 +11,8 @@ pub use results::{ScanResults, SortOrder};
 
 #[derive(Default)]
 pub struct Scanner {
+    /// The maximum depth to recurse when scanning
+    scan_depth: Option<usize>,
     // Ignore hidden files in the scan
     ignore_hidden: bool,
 }
@@ -21,6 +23,12 @@ impl Scanner {
         Scanner {
             ..Default::default()
         }
+    }
+
+    /// Set the maximum depth to recurse when scanning
+    pub fn scan_depth(mut self, depth: Option<usize>) -> Self {
+        self.scan_depth = depth;
+        self
     }
 
     /// Whether or not the scanner should ignore hidden files
@@ -92,6 +100,7 @@ impl Scanner {
     /// Setup the walker with the provided configuration
     fn configure_walker<P: AsRef<std::path::Path>>(&self, path: P) -> ignore::Walk {
         ignore::WalkBuilder::new(path)
+            .max_depth(self.scan_depth)
             .hidden(self.ignore_hidden)
             .build()
     }

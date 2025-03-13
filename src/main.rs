@@ -14,6 +14,7 @@ fn run(args: &cli::Args) -> std::io::Result<()> {
     // Scan the paths for the metrics
     let results = tali::scanner::Scanner::new()
         .ignore_hidden(!args.hidden)
+        .scan_depth(args.max_depth)
         .scan(&args.paths)?;
 
     // Setup the display/output configuration from the command-line arguments
