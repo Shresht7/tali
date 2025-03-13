@@ -66,6 +66,17 @@ pub struct Args {
     /// The order in which to sort
     #[clap(long, default_value = "descending")]
     pub sort_order: SortOrder,
+
+    /// The maximum depth to recurse when scanning
+    #[clap(short = 'd', long)]
+    pub max_depth: Option<usize>,
+
+    #[clap(long, alias = "size-limit")]
+    pub max_filesize: Option<u64>,
+
+    /// Scan hidden files
+    #[clap(short = 'a', long, alias = "all")]
+    pub hidden: bool,
 }
 
 impl Args {
