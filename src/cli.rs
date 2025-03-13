@@ -67,6 +67,10 @@ pub struct Args {
     #[clap(long, default_value = "descending")]
     pub sort_order: SortOrder,
 
+    /// The maximum depth to recurse when scanning
+    #[clap(short = 'd', long)]
+    pub max_depth: Option<usize>,
+
     /// Scan hidden files
     #[clap(short = 'a', long, alias = "all")]
     pub hidden: bool,
