@@ -71,6 +71,9 @@ pub struct Args {
     #[clap(short = 'd', long)]
     pub max_depth: Option<usize>,
 
+    #[clap(long, alias = "size-limit")]
+    pub max_filesize: Option<u64>,
+
     /// Scan hidden files
     #[clap(short = 'a', long, alias = "all")]
     pub hidden: bool,
