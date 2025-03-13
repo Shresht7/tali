@@ -1,4 +1,4 @@
-use crate::scanner::ScanResults;
+use crate::scanner::{ScanResults, SortOrder};
 
 mod json;
 use json::*;
@@ -49,6 +49,8 @@ pub struct Config {
     pub header: bool,
     pub footer: bool,
     pub alignment: bool,
+    pub sort_by: String,
+    pub sort_order: SortOrder,
 }
 
 impl Default for Config {
@@ -67,6 +69,8 @@ impl Default for Config {
             header: true,
             footer: true,
             alignment: true,
+            sort_by: "bytes".into(),
+            sort_order: SortOrder::Descending,
         }
     }
 }
@@ -129,7 +133,7 @@ pub fn display(results: ScanResults, mut config: Config) -> String {
     };
 
     // Sort the results
-    results.files.sort_by(|a, b| b.bytes.cmp(&a.bytes));
+    results.sort_by(&config.sort_by, &config.sort_order);
 
     // Chose the formatter based on the configuration
     match config.format {

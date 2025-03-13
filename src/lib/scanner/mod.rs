@@ -111,6 +111,45 @@ impl ScanResults {
         }
         ScanResults { files, total, max }
     }
+
+    /// Sort the [`ScanResults`] files based on the given column and sort order
+    pub fn sort_by(&mut self, category: &str, order: &SortOrder) {
+        match category.to_lowercase().as_str() {
+            "line" | "lines" => self.files.sort_by(|a, b| match order {
+                SortOrder::Ascending => a.lines.cmp(&b.lines),
+                SortOrder::Descending => b.lines.cmp(&a.lines),
+            }),
+            "word" | "words" => self.files.sort_by(|a, b| match order {
+                SortOrder::Ascending => a.words.cmp(&b.words),
+                SortOrder::Descending => b.words.cmp(&a.words),
+            }),
+            "char" | "chars" => self.files.sort_by(|a, b| match order {
+                SortOrder::Ascending => a.chars.cmp(&b.chars),
+                SortOrder::Descending => b.chars.cmp(&a.chars),
+            }),
+            "byte" | "bytes" | _ => self.files.sort_by(|a, b| match order {
+                SortOrder::Ascending => a.bytes.cmp(&b.bytes),
+                SortOrder::Descending => b.bytes.cmp(&a.bytes),
+            }),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum SortOrder {
+    Ascending,
+    Descending,
+}
+
+impl std::str::FromStr for SortOrder {
+    type Err = String;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "a" | "asc" | "ascending" => Ok(Self::Ascending),
+            "d" | "desc" | "descending" => Ok(Self::Descending),
+            x => Err(format!("Invalid sorting order: {x}")),
+        }
+    }
 }
 
 // ------------
