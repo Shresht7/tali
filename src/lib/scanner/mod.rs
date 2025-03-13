@@ -42,7 +42,7 @@ pub fn scan<P: AsRef<std::path::Path>>(paths: &[P]) -> std::io::Result<ScanResul
             // If path points to a directory, then walk the directory accumulating stats, and add them to the collection
             p if p.as_ref().is_dir() => {
                 // Build a directory walker that respects `.gitignore` and other hidden files
-                let walker = ignore::WalkBuilder::new(&path).build();
+                let walker = setup_walker(path).build();
 
                 // Iterate over all the entries
                 for result in walker {
@@ -67,4 +67,8 @@ pub fn scan<P: AsRef<std::path::Path>>(paths: &[P]) -> std::io::Result<ScanResul
     }
 
     Ok(ScanResults { files, total, max })
+}
+
+fn setup_walker<P: AsRef<std::path::Path>>(path: P) -> ignore::WalkBuilder {
+    ignore::WalkBuilder::new(path)
 }
