@@ -12,7 +12,9 @@ fn main() -> std::io::Result<()> {
 /// Run the main logic of the application by scanning the provided paths and then displaying the results.
 fn run(args: &cli::Args) -> std::io::Result<()> {
     // Scan the paths for the metrics
-    let results = tali::scanner::scan(&args.paths)?;
+    let results = tali::scanner::Scanner::new()
+        .scan_hidden(args.hidden)
+        .scan(&args.paths)?;
 
     // Setup the display/output configuration from the command-line arguments
     let config = tali::output::Config::from(args);
