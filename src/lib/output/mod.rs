@@ -119,13 +119,18 @@ impl Config {
     }
 }
 
+/// Formats the [`ScanResults`] based on the [`Config`] and returns the output
 pub fn display(results: ScanResults, mut config: Config) -> String {
     // Reform ScanResults if we need to group by language
-    let results = if config.group_by_language {
+    let mut results = if config.group_by_language {
         results.group_by_language()
     } else {
         results
     };
+
+    // Sort the results
+    results.files.sort_by(|a, b| b.bytes.cmp(&a.bytes));
+
     // Chose the formatter based on the configuration
     match config.format {
         Format::Table => TableFormatter::default().format(&results, &config),
