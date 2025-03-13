@@ -11,8 +11,8 @@ pub use results::{ScanResults, SortOrder};
 
 #[derive(Default)]
 pub struct Scanner {
-    // Include hidden files in the scan
-    scan_hidden: bool,
+    // Ignore hidden files in the scan
+    ignore_hidden: bool,
 }
 
 impl Scanner {
@@ -23,9 +23,9 @@ impl Scanner {
         }
     }
 
-    /// Whether or not the scanner should scan hidden files
-    pub fn scan_hidden(mut self, yes: bool) -> Self {
-        self.scan_hidden = yes;
+    /// Whether or not the scanner should ignore hidden files
+    pub fn ignore_hidden(mut self, yes: bool) -> Self {
+        self.ignore_hidden = yes;
         self
     }
 
@@ -92,7 +92,7 @@ impl Scanner {
     /// Setup the walker with the provided configuration
     fn configure_walker<P: AsRef<std::path::Path>>(&self, path: P) -> ignore::Walk {
         ignore::WalkBuilder::new(path)
-            .hidden(!self.scan_hidden)
+            .hidden(self.ignore_hidden)
             .build()
     }
 }
