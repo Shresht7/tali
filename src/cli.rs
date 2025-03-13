@@ -2,7 +2,7 @@ use clap::Parser;
 
 use std::io::IsTerminal;
 
-use tali::output::Config;
+use tali::{output::Config, scanner::SortOrder};
 
 /// A structural representation of the command-line arguments
 #[derive(Debug, Parser)]
@@ -56,8 +56,16 @@ pub struct Args {
     pub no_align: bool,
 
     /// Disable ANSI colors
-    #[clap(short, long, alias="plain", default_value_t = std::env::var("NO_COLOR").is_ok_and(|v| v.to_lowercase() == "true"))]
+    #[clap(long, alias="plain", default_value_t = std::env::var("NO_COLOR").is_ok_and(|v| v.to_lowercase() == "true"))]
     pub no_color: bool,
+
+    /// Sort on category
+    #[clap(long, default_value = "bytes")]
+    pub sort: String,
+
+    /// The order in which to sort
+    #[clap(long, default_value = "descending")]
+    pub sort_order: SortOrder,
 }
 
 impl Args {
@@ -115,6 +123,8 @@ impl From<&Args> for Config {
             header: !args.no_header,
             footer: !args.no_footer,
             alignment: !args.no_align,
+            sort_by: args.sort.clone(),
+            sort_order: args.sort_order,
         }
     }
 }
