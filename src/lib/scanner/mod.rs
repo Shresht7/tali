@@ -13,6 +13,8 @@ pub use results::{ScanResults, SortOrder};
 pub struct Scanner {
     /// The maximum depth to recurse when scanning
     scan_depth: Option<usize>,
+    /// Whether to ignore files above the specified limit
+    max_filesize: Option<u64>,
     // Ignore hidden files in the scan
     ignore_hidden: bool,
 }
@@ -28,6 +30,12 @@ impl Scanner {
     /// Set the maximum depth to recurse when scanning
     pub fn scan_depth(mut self, depth: Option<usize>) -> Self {
         self.scan_depth = depth;
+        self
+    }
+
+    /// Set the max filesize limit above which the scanner ignores the file
+    pub fn max_filesize(mut self, size: Option<u64>) -> Self {
+        self.max_filesize = size;
         self
     }
 
@@ -101,6 +109,7 @@ impl Scanner {
     fn configure_walker<P: AsRef<std::path::Path>>(&self, path: P) -> ignore::Walk {
         ignore::WalkBuilder::new(path)
             .max_depth(self.scan_depth)
+            .max_filesize(self.max_filesize)
             .hidden(self.ignore_hidden)
             .build()
     }
