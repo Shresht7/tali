@@ -13,7 +13,7 @@ fn main() -> std::io::Result<()> {
 fn run(args: &cli::Args) -> std::io::Result<()> {
     // Scan the paths for the metrics
     let results = tali::scanner::Scanner::new()
-        .scan_hidden(args.hidden)
+        .ignore_hidden(!args.hidden)
         .scan(&args.paths)?;
 
     // Setup the display/output configuration from the command-line arguments
