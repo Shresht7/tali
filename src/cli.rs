@@ -1,6 +1,7 @@
-use clap::Parser;
-
 use std::io::IsTerminal;
+
+use clap::Parser;
+use globset::{Glob, GlobSet, GlobSetBuilder};
 
 use tali::{
     output::Config,
@@ -80,6 +81,10 @@ pub struct Args {
     /// Scan hidden files
     #[clap(short = 'a', long, alias = "all")]
     pub hidden: bool,
+
+    /// Exclude these files from the scan
+    #[clap(long)]
+    pub exclude: Option<String>,
 }
 
 impl Args {
@@ -145,9 +150,26 @@ impl From<&Args> for Config {
 
 impl From<&Args> for Scanner {
     fn from(args: &Args) -> Self {
-        Self::new()
+        let mut scanner = Self::new()
             .ignore_hidden(!args.hidden)
             .max_filesize(args.max_filesize)
-            .scan_depth(args.max_depth)
+            .scan_depth(args.max_depth);
+
+        if let Some(patterns) = &args.exclude {
+            let exclude = build_glob_set(patterns);
+            scanner = scanner.exclude(exclude);
+        }
+
+        scanner
     }
+}
+
+fn build_glob_set(patterns: &String) -> GlobSet {
+    let mut builder = GlobSetBuilder::new();
+    for pattern in patterns.split(",") {
+        if let Ok(glob) = Glob::new(pattern.trim()) {
+            builder.add(glob);
+        }
+    }
+    builder.build().unwrap_or_else(|_| GlobSet::empty())
 }
