@@ -1,4 +1,7 @@
-use crate::scanner::{File, ScanResults};
+use crate::{
+    helpers::path,
+    scanner::{File, ScanResults},
+};
 
 use super::{Config, Formatter};
 
@@ -73,7 +76,8 @@ impl DelimiterFormatter<'_> {
         }
 
         if config.path {
-            cols.push(file.path.to_string_lossy().to_string());
+            let path = path::display(&file.path);
+            cols.push(path);
         }
 
         if config.lines {
