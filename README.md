@@ -44,7 +44,7 @@ The output can be configured using the various command-line arguments.
 - `-c, --chars`: Shows the character count
 - `-b, --bytes`: Show the byte count
 - `-e, --language`: Show the corresponding language
-- `-v, --visualization`: Show a graphical visualization
+- `-v, --visualize`: Show a graphical visualization
 - `-f, --format`: Configures the output format (`"table"`, `"json"`, `"plain"`)
 
 Use `--help` to get the full help for more details.

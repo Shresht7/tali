@@ -56,7 +56,7 @@ impl TableFormatter {
             config.words,
             config.chars,
             config.bytes,
-            config.visualization,
+            config.visualize,
         ];
         values
             .into_iter()
@@ -108,7 +108,7 @@ impl TableFormatter {
             cols.push(file.bytes.to_string());
         }
 
-        if config.visualization {
+        if config.visualize {
             let filled = "▬";
             let blank = " ";
             let bar_length = (file.bytes as f64 / results.max.bytes as f64 * 20.0).round() as usize;
