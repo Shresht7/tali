@@ -1,3 +1,5 @@
+use globset::GlobSet;
+
 mod accumulators;
 use accumulators::{Max, Totals};
 mod file;
@@ -15,8 +17,10 @@ pub struct Scanner {
     scan_depth: Option<usize>,
     /// Whether to ignore files above the specified limit
     max_filesize: Option<u64>,
-    // Ignore hidden files in the scan
+    /// Ignore hidden files in the scan
     ignore_hidden: bool,
+    /// Exclude these files from the scan
+    exclude: Option<GlobSet>,
 }
 
 impl Scanner {
@@ -42,6 +46,12 @@ impl Scanner {
     /// Whether or not the scanner should ignore hidden files
     pub fn ignore_hidden(mut self, yes: bool) -> Self {
         self.ignore_hidden = yes;
+        self
+    }
+
+    /// Exclude these files from the scan
+    pub fn exclude(mut self, exclude: GlobSet) -> Self {
+        self.exclude = Some(exclude);
         self
     }
 
@@ -107,10 +117,24 @@ impl Scanner {
 
     /// Setup the walker with the provided configuration
     fn configure_walker<P: AsRef<std::path::Path>>(&self, path: P) -> ignore::Walk {
-        ignore::WalkBuilder::new(path)
+        let mut walker = ignore::WalkBuilder::new(path);
+
+        // Set default configuration
+        walker
             .max_depth(self.scan_depth)
             .max_filesize(self.max_filesize)
-            .hidden(self.ignore_hidden)
-            .build()
+            .hidden(self.ignore_hidden);
+
+        // Filter files that match the exclude pattern
+        if let Some(exclude) = self.exclude.clone() {
+            walker.filter_entry(move |entry| {
+                if exclude.is_match(entry.path()) {
+                    return false;
+                }
+                return true;
+            });
+        }
+
+        walker.build()
     }
 }
