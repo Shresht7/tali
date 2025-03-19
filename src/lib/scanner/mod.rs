@@ -34,25 +34,25 @@ impl Scanner {
     }
 
     /// Set the maximum depth to recurse when scanning
-    pub fn scan_depth(mut self, depth: Option<usize>) -> Self {
+    pub fn scan_depth(&mut self, depth: Option<usize>) -> &mut Self {
         self.scan_depth = depth;
         self
     }
 
     /// Set the max filesize limit above which the scanner ignores the file
-    pub fn max_filesize(mut self, size: Option<u64>) -> Self {
+    pub fn max_filesize(&mut self, size: Option<u64>) -> &mut Self {
         self.max_filesize = size;
         self
     }
 
     /// Whether or not the scanner should ignore hidden files
-    pub fn ignore_hidden(mut self, yes: bool) -> Self {
+    pub fn ignore_hidden(&mut self, yes: bool) -> &mut Self {
         self.ignore_hidden = yes;
         self
     }
 
     /// Exclude files that match the pattern from the scan
-    pub fn exclude(mut self, exclude: GlobSet) -> Self {
+    pub fn exclude(&mut self, exclude: GlobSet) -> &mut Self {
         self.exclude = Some(exclude);
         self
     }

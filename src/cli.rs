@@ -197,14 +197,16 @@ impl From<&Args> for Config {
 
 impl From<&Args> for Scanner {
     fn from(args: &Args) -> Self {
-        let mut scanner = Self::new()
+        let mut scanner = Self::new();
+
+        scanner
             .ignore_hidden(!args.hidden)
             .max_filesize(args.max_filesize)
             .scan_depth(args.max_depth);
 
         if let Some(patterns) = &args.exclude {
             let exclude = build_glob_set(patterns);
-            scanner = scanner.exclude(exclude);
+            scanner.exclude(exclude);
         }
 
         scanner
