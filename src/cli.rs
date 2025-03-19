@@ -41,7 +41,7 @@ pub struct Args {
 
     /// Show visualization
     #[clap(short, long, aliases = ["graph", "vis"])]
-    pub visualization: bool,
+    pub visualize: bool,
 
     /// The output format
     #[clap(short, long, default_value = "table")]
@@ -108,7 +108,7 @@ impl Args {
             self.words,
             self.chars,
             self.bytes,
-            self.visualization,
+            self.visualize,
         ]
         .iter()
         .all(|toggle| *toggle == false);
@@ -119,7 +119,7 @@ impl Args {
             self.words = true;
             self.chars = true;
             self.bytes = true;
-            self.visualization = true;
+            self.visualize = true;
         }
 
         self
@@ -136,7 +136,7 @@ impl From<&Args> for Config {
             words: args.words,
             chars: args.chars,
             bytes: args.bytes,
-            visualization: args.visualization,
+            visualize: args.visualize,
             use_colors: !args.no_color,
             format: args.format,
             header: !args.no_header,

@@ -43,7 +43,7 @@ pub struct Config {
     pub chars: bool,
     pub bytes: bool,
     pub language: bool,
-    pub visualization: bool,
+    pub visualize: bool,
     pub use_colors: bool,
     pub format: Format,
     pub header: bool,
@@ -63,7 +63,7 @@ impl Default for Config {
             chars: true,
             bytes: true,
             language: true,
-            visualization: true,
+            visualize: true,
             use_colors: true,
             format: Format::Table,
             header: true,
@@ -117,8 +117,8 @@ impl Config {
         self
     }
 
-    pub fn visualization(&mut self, yes: bool) -> &mut Self {
-        self.visualization = yes;
+    pub fn visualize(&mut self, yes: bool) -> &mut Self {
+        self.visualize = yes;
         self
     }
 }
@@ -141,7 +141,7 @@ pub fn display(results: ScanResults, mut config: Config) -> String {
         Format::Plain => {
             config.header = false;
             config.footer = false;
-            config.visualization = false;
+            config.visualize = false;
             config.use_colors = false;
             config.alignment = false;
             TableFormatter::default().format(&results, &config)
