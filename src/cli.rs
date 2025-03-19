@@ -63,6 +63,10 @@ pub struct Args {
     #[clap(long, default_value = " ")]
     pub graph_blank: String,
 
+    /// The max column width alloted to the graph
+    #[clap(long, default_value_t = 20)]
+    pub graph_size: usize,
+
     /// The property to visualize in the graph
     #[clap(long)]
     pub graph_by: Option<String>,
@@ -159,24 +163,30 @@ impl Args {
 impl From<&Args> for Config {
     fn from(args: &Args) -> Self {
         Self {
-            group_by_language: args.group,
             path: !args.group,
+
             language: args.language,
             lines: args.lines,
             words: args.words,
             chars: args.chars,
             bytes: args.bytes,
-            use_colors: !args.no_color,
-            format: args.format,
-            header: !args.no_header,
-            footer: !args.no_footer,
-            alignment: !args.no_align,
-            sort_by: args.sort_by.clone(),
+            group_by_language: args.group,
+
             graph: args.graph,
             graph_by: args.graph_by.clone().unwrap_or(args.sort_by.clone()),
             graph_fill: args.graph_fill.clone(),
             graph_blank: args.graph_blank.clone(),
+            graph_size: args.graph_size,
+
+            sort_by: args.sort_by.clone(),
             sort_order: args.sort_order,
+
+            header: !args.no_header,
+            footer: !args.no_footer,
+            alignment: !args.no_align,
+
+            use_colors: !args.no_color,
+            format: args.format,
         }
     }
 }

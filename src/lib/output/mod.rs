@@ -52,6 +52,7 @@ pub struct Config {
     pub graph_by: String,
     pub graph_fill: String,
     pub graph_blank: String,
+    pub graph_size: usize,
 
     pub header: bool,
     pub footer: bool,
@@ -80,6 +81,7 @@ impl Default for Config {
             graph_by: "bytes".into(),
             graph_fill: "▬".into(),
             graph_blank: " ".into(),
+            graph_size: 20,
 
             header: true,
             footer: true,
