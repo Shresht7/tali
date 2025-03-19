@@ -119,7 +119,7 @@ impl TableFormatter {
     fn build_visualization(&self, file: &File, results: &ScanResults, config: &Config) -> String {
         let fill = config.graph_fill.clone();
         let blank = config.graph_blank.clone();
-        let max_length = 20;
+        let max_length = config.graph_size;
 
         let bar_length = match config.graph_by.as_str() {
             "lines" | "line" | "l" => {
@@ -136,7 +136,7 @@ impl TableFormatter {
             }
         } as usize;
 
-        let bar = fill.repeat(bar_length) + &blank.repeat(20 - bar_length);
+        let bar = fill.repeat(bar_length) + &blank.repeat(max_length - bar_length);
         let bar = if config.use_colors {
             color(&file.language, &bar)
         } else {
