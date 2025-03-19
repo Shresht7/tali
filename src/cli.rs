@@ -2,7 +2,10 @@ use clap::Parser;
 
 use std::io::IsTerminal;
 
-use tali::{output::Config, scanner::SortOrder};
+use tali::{
+    output::Config,
+    scanner::{Scanner, SortOrder},
+};
 
 /// A structural representation of the command-line arguments
 #[derive(Debug, Parser)]
@@ -137,5 +140,14 @@ impl From<&Args> for Config {
             sort_by: args.sort.clone(),
             sort_order: args.sort_order,
         }
+    }
+}
+
+impl From<&Args> for Scanner {
+    fn from(args: &Args) -> Self {
+        Self::new()
+            .ignore_hidden(!args.hidden)
+            .max_filesize(args.max_filesize)
+            .scan_depth(args.max_depth)
     }
 }
