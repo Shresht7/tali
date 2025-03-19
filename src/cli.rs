@@ -12,9 +12,11 @@ use tali::{
 #[derive(Debug, Parser)]
 #[command(author, version, about)]
 pub struct Args {
+    // ** === PATHS === **
     /// The paths to scan (defaults to the current directory or STDIN (if being redirected))
     pub paths: Vec<String>,
 
+    // ** === COLUMN OPTIONS === **
     /// Show language
     #[clap(short('e'), long, aliases = ["lang", "kind", "type"])]
     pub language: bool,
@@ -39,36 +41,25 @@ pub struct Args {
     #[clap(short, long, aliases=["compact", "overview"])]
     pub group: bool,
 
-    /// Show visualization
-    #[clap(short, long, aliases = ["graph", "vis"])]
-    pub visualize: bool,
-
-    /// The output format
-    #[clap(short, long, default_value = "table")]
-    pub format: tali::output::Format,
-
-    /// Disable the header row
-    #[clap(long, default_value_t = false)]
-    pub no_header: bool,
-
-    /// Disable the footer row
-    #[clap(long, default_value_t = false)]
-    pub no_footer: bool,
-
-    /// Disable the table columns
-    #[clap(long, default_value_t = false)]
-    pub no_align: bool,
-
-    /// Disable ANSI colors
-    #[clap(long, alias="plain", default_value_t = std::env::var("NO_COLOR").is_ok_and(|v| v.to_lowercase() == "true"))]
-    pub no_color: bool,
-
+    // ** === SORTING OPTIONS === **
     /// Sort on category
     #[clap(long, default_value = "bytes")]
     pub sort_by: String,
 
+    /// The order in which to sort
+    #[clap(long, default_value = "descending")]
+    pub sort_order: SortOrder,
+
+    // ** === GRAPH OPTIONS === **
+    /// Show visualization
+    #[clap(short, long, aliases = ["graph", "vis"])]
+    pub visualize: bool,
+
+    /// The character to use for the graph
     #[clap(long, default_value = "▬")]
     pub graph_fill: String,
+
+    /// The character to use for the empty spaces in the graph
     #[clap(long, default_value = " ")]
     pub graph_blank: String,
 
@@ -76,10 +67,7 @@ pub struct Args {
     #[clap(long)]
     pub graph_by: Option<String>,
 
-    /// The order in which to sort
-    #[clap(long, default_value = "descending")]
-    pub sort_order: SortOrder,
-
+    // ** === SCANNING OPTIONS === **
     /// The maximum depth to recurse when scanning
     #[clap(short = 'd', long)]
     pub max_depth: Option<usize>,
@@ -94,6 +82,28 @@ pub struct Args {
     /// Exclude files that match the pattern from the scan
     #[clap(long)]
     pub exclude: Option<String>,
+
+    // ** === TABLE OPTIONS === **
+    /// Disable the header row
+    #[clap(long, default_value_t = false)]
+    pub no_header: bool,
+
+    /// Disable the footer row
+    #[clap(long, default_value_t = false)]
+    pub no_footer: bool,
+
+    /// Disable the table columns
+    #[clap(long, default_value_t = false)]
+    pub no_align: bool,
+
+    // ** === OUTPUT OPTIONS=== **
+    /// Disable ANSI colors
+    #[clap(long, alias="plain", default_value_t = std::env::var("NO_COLOR").is_ok_and(|v| v.to_lowercase() == "true"))]
+    pub no_color: bool,
+
+    /// The output format
+    #[clap(short, long, default_value = "table")]
+    pub format: tali::output::Format,
 }
 
 impl Args {
