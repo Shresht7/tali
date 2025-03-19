@@ -56,7 +56,7 @@ impl TableFormatter {
             config.words,
             config.chars,
             config.bytes,
-            config.visualize,
+            config.graph,
         ];
         values
             .into_iter()
@@ -108,7 +108,7 @@ impl TableFormatter {
             cols.push(file.bytes.to_string());
         }
 
-        if config.visualize {
+        if config.graph {
             let bar = self.build_visualization(file, results, config);
             cols.push(bar);
         }
