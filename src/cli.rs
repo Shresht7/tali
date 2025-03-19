@@ -129,6 +129,17 @@ impl Args {
             self.chars = true;
             self.bytes = true;
             self.visualize = true;
+        } else {
+            // If bytes is not visible, update the default sort
+            if self.lines {
+                self.sort = "lines".into()
+            } else if self.words {
+                self.sort = "words".into()
+            } else if self.chars {
+                self.sort = "chars".into()
+            } else {
+                self.sort = "bytes".into()
+            }
         }
 
         self
