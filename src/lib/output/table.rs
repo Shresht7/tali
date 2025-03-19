@@ -109,19 +109,24 @@ impl TableFormatter {
         }
 
         if config.visualize {
-            let filled = "▬";
-            let blank = " ";
-            let bar_length = (file.bytes as f64 / results.max.bytes as f64 * 20.0).round() as usize;
-            let bar = filled.repeat(bar_length) + &blank.repeat(20 - bar_length);
-            let bar = if config.use_colors {
-                color(&file.language, &bar)
-            } else {
-                bar
-            };
+            let bar = self.build_visualization(file, results, config);
             cols.push(bar);
         }
 
         cols.join("\t") + "\n"
+    }
+
+    fn build_visualization(&self, file: &File, results: &ScanResults, config: &Config) -> String {
+        let filled = "▬";
+        let blank = " ";
+        let bar_length = (file.bytes as f64 / results.max.bytes as f64 * 20.0).round() as usize;
+        let bar = filled.repeat(bar_length) + &blank.repeat(20 - bar_length);
+        let bar = if config.use_colors {
+            color(&file.language, &bar)
+        } else {
+            bar
+        };
+        bar
     }
 
     fn build_footer(&self, results: &ScanResults, config: &Config) -> Vec<String> {
