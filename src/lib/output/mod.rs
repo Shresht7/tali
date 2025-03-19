@@ -36,96 +36,58 @@ impl std::str::FromStr for Format {
 
 #[derive(Debug)]
 pub struct Config {
-    pub group_by_language: bool,
     pub path: bool,
+
+    pub language: bool,
     pub lines: bool,
     pub words: bool,
     pub chars: bool,
     pub bytes: bool,
-    pub language: bool,
-    pub use_colors: bool,
-    pub format: Format,
-    pub header: bool,
-    pub footer: bool,
-    pub alignment: bool,
+    pub group_by_language: bool,
+
     pub sort_by: String,
+    pub sort_order: SortOrder,
+
     pub graph: bool,
     pub graph_by: String,
     pub graph_fill: String,
     pub graph_blank: String,
-    pub sort_order: SortOrder,
+
+    pub header: bool,
+    pub footer: bool,
+    pub alignment: bool,
+
+    pub use_colors: bool,
+    pub format: Format,
 }
 
 impl Default for Config {
     fn default() -> Self {
         Self {
-            group_by_language: false,
             path: true,
+
+            language: true,
             lines: true,
             words: true,
             chars: true,
             bytes: true,
-            language: true,
-            graph: true,
-            use_colors: true,
-            format: Format::Table,
-            header: true,
-            footer: true,
-            alignment: true,
+            group_by_language: false,
+
             sort_by: "bytes".into(),
+            sort_order: SortOrder::Descending,
+
+            graph: true,
             graph_by: "bytes".into(),
             graph_fill: "▬".into(),
             graph_blank: " ".into(),
-            sort_order: SortOrder::Descending,
+
+            header: true,
+            footer: true,
+            alignment: true,
+
+            use_colors: true,
+            format: Format::Table,
         }
-    }
-}
-
-impl Config {
-    /// Sets whether to group output by language
-    pub fn group_by_language(&mut self, yes: bool) -> &mut Self {
-        self.group_by_language = yes;
-        self
-    }
-
-    /// Sets whether to show file path
-    pub fn path(&mut self, yes: bool) -> &mut Self {
-        self.path = yes;
-        self
-    }
-
-    /// Sets whether to show the line count
-    pub fn lines(&mut self, yes: bool) -> &mut Self {
-        self.lines = yes;
-        self
-    }
-
-    /// Sets whether to show the word count
-    pub fn words(&mut self, yes: bool) -> &mut Self {
-        self.words = yes;
-        self
-    }
-
-    /// Sets whether to show the character count
-    pub fn chars(&mut self, yes: bool) -> &mut Self {
-        self.chars = yes;
-        self
-    }
-
-    /// Sets whether to show byte count
-    pub fn bytes(&mut self, yes: bool) -> &mut Self {
-        self.bytes = yes;
-        self
-    }
-
-    pub fn color(&mut self, yes: bool) -> &mut Self {
-        self.use_colors = yes;
-        self
-    }
-
-    pub fn visualize(&mut self, yes: bool) -> &mut Self {
-        self.graph = yes;
-        self
     }
 }
 
