@@ -117,8 +117,8 @@ impl TableFormatter {
     }
 
     fn build_visualization(&self, file: &File, results: &ScanResults, config: &Config) -> String {
-        let filled = "▬";
-        let blank = " ";
+        let fill = config.graph_fill.clone();
+        let blank = config.graph_blank.clone();
         let max_length = 20;
 
         let bar_length = match config.graph_by.as_str() {
@@ -136,7 +136,7 @@ impl TableFormatter {
             }
         } as usize;
 
-        let bar = filled.repeat(bar_length) + &blank.repeat(20 - bar_length);
+        let bar = fill.repeat(bar_length) + &blank.repeat(20 - bar_length);
         let bar = if config.use_colors {
             color(&file.language, &bar)
         } else {

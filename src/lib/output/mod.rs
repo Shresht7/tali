@@ -51,6 +51,8 @@ pub struct Config {
     pub alignment: bool,
     pub sort_by: String,
     pub graph_by: String,
+    pub graph_fill: String,
+    pub graph_blank: String,
     pub sort_order: SortOrder,
 }
 
@@ -72,6 +74,8 @@ impl Default for Config {
             alignment: true,
             sort_by: "bytes".into(),
             graph_by: "bytes".into(),
+            graph_fill: "▬".into(),
+            graph_blank: " ".into(),
             sort_order: SortOrder::Descending,
         }
     }

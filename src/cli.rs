@@ -67,6 +67,11 @@ pub struct Args {
     #[clap(long, default_value = "bytes")]
     pub sort: String,
 
+    #[clap(long, default_value = "▬")]
+    pub graph_fill: String,
+    #[clap(long, default_value = " ")]
+    pub graph_blank: String,
+
     /// The property to visualize in the graph
     #[clap(long)]
     pub graph_by: Option<String>,
@@ -148,6 +153,8 @@ impl From<&Args> for Config {
             alignment: !args.no_align,
             sort_by: args.sort.clone(),
             graph_by: args.graph_by.clone().unwrap_or(args.sort.clone()),
+            graph_fill: args.graph_fill.clone(),
+            graph_blank: args.graph_blank.clone(),
             sort_order: args.sort_order,
         }
     }
