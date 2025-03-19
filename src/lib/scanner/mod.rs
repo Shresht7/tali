@@ -1,5 +1,7 @@
 use globset::GlobSet;
 
+use crate::helpers;
+
 mod accumulators;
 use accumulators::{Max, Totals};
 mod file;
@@ -128,7 +130,8 @@ impl Scanner {
         // Filter files that match the exclude pattern
         if let Some(exclude) = self.exclude.clone() {
             walker.filter_entry(move |entry| {
-                if exclude.is_match(entry.path()) {
+                let path = helpers::path::display(entry.path());
+                if exclude.is_match(path) {
                     return false;
                 }
                 return true;

@@ -1,6 +1,7 @@
 use crate::{
     helpers::{
         language::Language,
+        path,
         table::{Alignment, Table},
     },
     scanner::{File, ScanResults},
@@ -87,7 +88,8 @@ impl TableFormatter {
         }
 
         if config.path {
-            cols.push(file.path.to_string_lossy().to_string());
+            let path = path::display(&file.path);
+            cols.push(path);
         }
 
         if config.lines {
