@@ -82,7 +82,7 @@ pub struct Args {
     #[clap(short = 'a', long, alias = "all")]
     pub hidden: bool,
 
-    /// Exclude these files from the scan
+    /// Exclude files that match the pattern from the scan
     #[clap(long)]
     pub exclude: Option<String>,
 }
