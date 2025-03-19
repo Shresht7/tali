@@ -2,6 +2,8 @@ use serde::Serialize;
 
 use std::collections::HashMap;
 
+use crate::output::Metric;
+
 use super::{File, Max, Totals};
 
 // ------------
@@ -48,21 +50,21 @@ impl ScanResults {
     }
 
     /// Sort the [`ScanResults`] files based on the given column and sort order
-    pub fn sort_by(&mut self, category: &str, order: &SortOrder) {
-        match category.to_lowercase().as_str() {
-            "line" | "lines" => self.files.sort_by(|a, b| match order {
+    pub fn sort_by(&mut self, category: Metric, order: &SortOrder) {
+        match category {
+            Metric::Lines => self.files.sort_by(|a, b| match order {
                 SortOrder::Ascending => a.lines.cmp(&b.lines),
                 SortOrder::Descending => b.lines.cmp(&a.lines),
             }),
-            "word" | "words" => self.files.sort_by(|a, b| match order {
+            Metric::Words => self.files.sort_by(|a, b| match order {
                 SortOrder::Ascending => a.words.cmp(&b.words),
                 SortOrder::Descending => b.words.cmp(&a.words),
             }),
-            "char" | "chars" => self.files.sort_by(|a, b| match order {
+            Metric::Chars => self.files.sort_by(|a, b| match order {
                 SortOrder::Ascending => a.chars.cmp(&b.chars),
                 SortOrder::Descending => b.chars.cmp(&a.chars),
             }),
-            "byte" | "bytes" | _ => self.files.sort_by(|a, b| match order {
+            Metric::Bytes | _ => self.files.sort_by(|a, b| match order {
                 SortOrder::Ascending => a.bytes.cmp(&b.bytes),
                 SortOrder::Descending => b.bytes.cmp(&a.bytes),
             }),

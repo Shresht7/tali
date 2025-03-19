@@ -4,7 +4,7 @@ use clap::Parser;
 use globset::{Glob, GlobSet, GlobSetBuilder};
 
 use tali::{
-    output::Config,
+    output::{Config, Metric},
     scanner::{Scanner, SortOrder},
 };
 
@@ -44,7 +44,7 @@ pub struct Args {
     // ** === SORTING OPTIONS === **
     /// Sort on category
     #[clap(long)]
-    pub sort_by: Option<String>,
+    pub sort_by: Option<Metric>,
 
     /// The order in which to sort
     #[clap(long, default_value = "descending")]
@@ -69,7 +69,7 @@ pub struct Args {
 
     /// The property to visualize in the graph
     #[clap(long)]
-    pub graph_by: Option<String>,
+    pub graph_by: Option<Metric>,
 
     // ** === SCANNING OPTIONS === **
     /// The maximum depth to recurse when scanning
@@ -148,13 +148,13 @@ impl Args {
         // Determine the default sort
         if self.sort_by.is_none() {
             if self.lines {
-                self.sort_by = Some("lines".into())
+                self.sort_by = Some(Metric::Lines)
             } else if self.words {
-                self.sort_by = Some("words".into())
+                self.sort_by = Some(Metric::Words)
             } else if self.chars {
-                self.sort_by = Some("chars".into())
+                self.sort_by = Some(Metric::Chars)
             } else {
-                self.sort_by = Some("bytes".into())
+                self.sort_by = Some(Metric::Bytes)
             }
         }
 
@@ -164,8 +164,8 @@ impl Args {
 
 impl From<&Args> for Config {
     fn from(args: &Args) -> Self {
-        let sort_by = args.sort_by.clone().unwrap_or("bytes".into());
-        let graph_by = args.graph_by.clone().unwrap_or(sort_by.clone());
+        let sort_by = args.sort_by.unwrap_or(Metric::Bytes);
+        let graph_by = args.graph_by.unwrap_or(sort_by);
         Self {
             path: !args.group,
 

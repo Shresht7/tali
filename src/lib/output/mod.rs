@@ -11,6 +11,42 @@ pub trait Formatter {
     fn format(&self, results: &ScanResults, config: &Config) -> String;
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum Metric {
+    Language,
+    Lines,
+    Words,
+    Chars,
+    Bytes,
+}
+
+impl std::str::FromStr for Metric {
+    type Err = String;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s.to_lowercase().as_str() {
+            "language" | "lang" | "kind" | "type" | "extension" | "ext" => Ok(Self::Language),
+            "lines" | "line" | "l" => Ok(Self::Lines),
+            "words" | "word" | "w" => Ok(Self::Words),
+            "chars" | "char" | "c" => Ok(Self::Chars),
+            "bytes" | "byte" | "b" => Ok(Self::Bytes),
+            _ => Err(format!("Invalid metric: {}", s)),
+        }
+    }
+}
+
+impl std::fmt::Display for Metric {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let name = match self {
+            Self::Language => "language",
+            Self::Lines => "lines",
+            Self::Words => "words",
+            Self::Chars => "chars",
+            Self::Bytes => "bytes",
+        };
+        write!(f, "{}", name)
+    }
+}
+
 #[derive(Debug, Clone, Copy)]
 pub enum Format {
     Table,
@@ -45,11 +81,11 @@ pub struct Config {
     pub bytes: bool,
     pub group_by_language: bool,
 
-    pub sort_by: String,
+    pub sort_by: Metric,
     pub sort_order: SortOrder,
 
     pub graph: bool,
-    pub graph_by: String,
+    pub graph_by: Metric,
     pub graph_fill: String,
     pub graph_blank: String,
     pub graph_size: usize,
@@ -74,11 +110,11 @@ impl Default for Config {
             bytes: true,
             group_by_language: false,
 
-            sort_by: "bytes".into(),
+            sort_by: Metric::Bytes,
             sort_order: SortOrder::Descending,
 
             graph: true,
-            graph_by: "bytes".into(),
+            graph_by: Metric::Bytes,
             graph_fill: "▬".into(),
             graph_blank: " ".into(),
             graph_size: 20,
@@ -103,7 +139,7 @@ pub fn display(results: ScanResults, mut config: Config) -> String {
     };
 
     // Sort the results
-    results.sort_by(&config.sort_by, &config.sort_order);
+    results.sort_by(config.sort_by, &config.sort_order);
 
     // Chose the formatter based on the configuration
     match config.format {

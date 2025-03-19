@@ -7,7 +7,7 @@ use crate::{
     scanner::{File, ScanResults},
 };
 
-use super::{Config, Formatter};
+use super::{Config, Formatter, Metric};
 
 #[derive(Debug, Default)]
 pub struct TableFormatter {}
@@ -121,17 +121,17 @@ impl TableFormatter {
         let blank = config.graph_blank.clone();
         let max_length = config.graph_size;
 
-        let bar_length = match config.graph_by.as_str() {
-            "lines" | "line" | "l" => {
+        let bar_length = match config.graph_by {
+            Metric::Lines => {
                 (file.lines as f64 / results.max.lines as f64 * max_length as f64).round()
             }
-            "words" | "word" | "w" => {
+            Metric::Words => {
                 (file.words as f64 / results.max.words as f64 * max_length as f64).round()
             }
-            "chars" | "char" | "c" => {
+            Metric::Chars => {
                 (file.chars as f64 / results.max.chars as f64 * max_length as f64).round()
             }
-            "bytes" | "byte" | "b" | "size" | "filesize" | _ => {
+            Metric::Bytes | _ => {
                 (file.bytes as f64 / results.max.bytes as f64 * max_length as f64).round()
             }
         } as usize;
