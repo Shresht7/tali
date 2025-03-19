@@ -119,13 +119,30 @@ impl TableFormatter {
     fn build_visualization(&self, file: &File, results: &ScanResults, config: &Config) -> String {
         let filled = "▬";
         let blank = " ";
-        let bar_length = (file.bytes as f64 / results.max.bytes as f64 * 20.0).round() as usize;
+        let max_length = 20;
+
+        let bar_length = match config.graph_by.as_str() {
+            "lines" | "line" | "l" => {
+                (file.lines as f64 / results.max.lines as f64 * max_length as f64).round()
+            }
+            "words" | "word" | "w" => {
+                (file.words as f64 / results.max.words as f64 * max_length as f64).round()
+            }
+            "chars" | "char" | "c" => {
+                (file.chars as f64 / results.max.chars as f64 * max_length as f64).round()
+            }
+            "bytes" | "byte" | "b" | "size" | "filesize" | _ => {
+                (file.bytes as f64 / results.max.bytes as f64 * max_length as f64).round()
+            }
+        } as usize;
+
         let bar = filled.repeat(bar_length) + &blank.repeat(20 - bar_length);
         let bar = if config.use_colors {
             color(&file.language, &bar)
         } else {
             bar
         };
+
         bar
     }
 

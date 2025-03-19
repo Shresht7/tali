@@ -67,6 +67,10 @@ pub struct Args {
     #[clap(long, default_value = "bytes")]
     pub sort: String,
 
+    /// The property to visualize in the graph
+    #[clap(long)]
+    pub graph_by: Option<String>,
+
     /// The order in which to sort
     #[clap(long, default_value = "descending")]
     pub sort_order: SortOrder,
@@ -143,6 +147,7 @@ impl From<&Args> for Config {
             footer: !args.no_footer,
             alignment: !args.no_align,
             sort_by: args.sort.clone(),
+            graph_by: args.graph_by.clone().unwrap_or(args.sort.clone()),
             sort_order: args.sort_order,
         }
     }

@@ -50,6 +50,7 @@ pub struct Config {
     pub footer: bool,
     pub alignment: bool,
     pub sort_by: String,
+    pub graph_by: String,
     pub sort_order: SortOrder,
 }
 
@@ -70,6 +71,7 @@ impl Default for Config {
             footer: true,
             alignment: true,
             sort_by: "bytes".into(),
+            graph_by: "bytes".into(),
             sort_order: SortOrder::Descending,
         }
     }
