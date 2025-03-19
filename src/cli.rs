@@ -52,8 +52,8 @@ pub struct Args {
 
     // ** === GRAPH OPTIONS === **
     /// Show visualization
-    #[clap(short, long, aliases = ["graph", "vis"])]
-    pub visualize: bool,
+    #[clap(short = 'v', long, aliases = ["vis", "visualize", "visualization"])]
+    pub graph: bool,
 
     /// The character to use for the graph
     #[clap(long, default_value = "▬")]
@@ -127,7 +127,7 @@ impl Args {
             self.words,
             self.chars,
             self.bytes,
-            self.visualize,
+            self.graph,
         ]
         .iter()
         .all(|toggle| *toggle == false);
@@ -138,7 +138,7 @@ impl Args {
             self.words = true;
             self.chars = true;
             self.bytes = true;
-            self.visualize = true;
+            self.graph = true;
         } else {
             // If bytes is not visible, update the default sort
             if self.lines {
@@ -166,13 +166,13 @@ impl From<&Args> for Config {
             words: args.words,
             chars: args.chars,
             bytes: args.bytes,
-            visualize: args.visualize,
             use_colors: !args.no_color,
             format: args.format,
             header: !args.no_header,
             footer: !args.no_footer,
             alignment: !args.no_align,
             sort_by: args.sort_by.clone(),
+            graph: args.graph,
             graph_by: args.graph_by.clone().unwrap_or(args.sort_by.clone()),
             graph_fill: args.graph_fill.clone(),
             graph_blank: args.graph_blank.clone(),
