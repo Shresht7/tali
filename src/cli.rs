@@ -65,7 +65,7 @@ pub struct Args {
 
     /// Sort on category
     #[clap(long, default_value = "bytes")]
-    pub sort: String,
+    pub sort_by: String,
 
     #[clap(long, default_value = "▬")]
     pub graph_fill: String,
@@ -132,13 +132,13 @@ impl Args {
         } else {
             // If bytes is not visible, update the default sort
             if self.lines {
-                self.sort = "lines".into()
+                self.sort_by = "lines".into()
             } else if self.words {
-                self.sort = "words".into()
+                self.sort_by = "words".into()
             } else if self.chars {
-                self.sort = "chars".into()
+                self.sort_by = "chars".into()
             } else {
-                self.sort = "bytes".into()
+                self.sort_by = "bytes".into()
             }
         }
 
@@ -162,8 +162,8 @@ impl From<&Args> for Config {
             header: !args.no_header,
             footer: !args.no_footer,
             alignment: !args.no_align,
-            sort_by: args.sort.clone(),
-            graph_by: args.graph_by.clone().unwrap_or(args.sort.clone()),
+            sort_by: args.sort_by.clone(),
+            graph_by: args.graph_by.clone().unwrap_or(args.sort_by.clone()),
             graph_fill: args.graph_fill.clone(),
             graph_blank: args.graph_blank.clone(),
             sort_order: args.sort_order,
