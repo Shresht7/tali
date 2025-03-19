@@ -21,7 +21,7 @@ pub struct Scanner {
     max_filesize: Option<u64>,
     /// Ignore hidden files in the scan
     ignore_hidden: bool,
-    /// Exclude these files from the scan
+    /// Exclude files that match the pattern from the scan
     exclude: Option<GlobSet>,
 }
 
@@ -51,7 +51,7 @@ impl Scanner {
         self
     }
 
-    /// Exclude these files from the scan
+    /// Exclude files that match the pattern from the scan
     pub fn exclude(mut self, exclude: GlobSet) -> Self {
         self.exclude = Some(exclude);
         self
