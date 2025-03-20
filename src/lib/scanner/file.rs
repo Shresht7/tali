@@ -26,6 +26,8 @@ pub struct File {
     pub bytes: u64,
     /// The language used in this file
     pub language: Language,
+    /// The number of files this entry represents. Usually 1 unless aggregated under a language.
+    pub count: usize,
 }
 
 impl File {
@@ -76,6 +78,7 @@ impl File {
             chars,
             bytes,
             language,
+            count: 1,
         })
     }
 
@@ -118,6 +121,7 @@ impl File {
             chars,
             bytes,
             language,
+            count: 1,
         })
     }
 }
@@ -132,6 +136,7 @@ impl std::ops::Add for File {
             chars: self.chars + rhs.words,
             bytes: self.bytes + rhs.bytes,
             language: rhs.language.clone(),
+            count: self.count + rhs.count,
         }
     }
 }

@@ -21,6 +21,10 @@ pub struct Args {
     #[clap(short('e'), long, aliases = ["lang", "kind", "type"])]
     pub language: bool,
 
+    /// Show file-paths / file-count
+    #[clap(long)]
+    pub files: bool,
+
     /// Show line count
     #[clap(short, long)]
     pub lines: bool,
@@ -127,6 +131,7 @@ impl Args {
         // If all the flags are false, then do nothing and just use the defaults
         let show_all = vec![
             self.language,
+            self.files,
             self.lines,
             self.words,
             self.chars,
@@ -138,6 +143,7 @@ impl Args {
 
         if show_all {
             self.language = true;
+            self.files = true;
             self.lines = true;
             self.words = true;
             self.chars = true;
@@ -167,7 +173,7 @@ impl From<&Args> for Config {
         let sort_by = args.sort_by.unwrap_or(Metric::Bytes);
         let graph_by = args.graph_by.unwrap_or(sort_by);
         Self {
-            path: !args.group,
+            files: args.files,
 
             language: args.language,
             lines: args.lines,

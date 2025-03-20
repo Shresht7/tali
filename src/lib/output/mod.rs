@@ -14,6 +14,7 @@ pub trait Formatter {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Metric {
     Language,
+    Files,
     Lines,
     Words,
     Chars,
@@ -25,6 +26,7 @@ impl std::str::FromStr for Metric {
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
             "language" | "lang" | "kind" | "type" | "extension" | "ext" => Ok(Self::Language),
+            "files" | "file" | "f" | "file-count" | "count" => Ok(Self::Files),
             "lines" | "line" | "l" => Ok(Self::Lines),
             "words" | "word" | "w" => Ok(Self::Words),
             "chars" | "char" | "c" => Ok(Self::Chars),
@@ -38,6 +40,7 @@ impl std::fmt::Display for Metric {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let name = match self {
             Self::Language => "language",
+            Self::Files => "files",
             Self::Lines => "lines",
             Self::Words => "words",
             Self::Chars => "chars",
@@ -72,7 +75,7 @@ impl std::str::FromStr for Format {
 
 #[derive(Debug)]
 pub struct Config {
-    pub path: bool,
+    pub files: bool,
 
     pub language: bool,
     pub lines: bool,
@@ -101,7 +104,7 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            path: true,
+            files: true,
 
             language: true,
             lines: true,

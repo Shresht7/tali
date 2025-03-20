@@ -19,7 +19,7 @@ pub struct Totals {
 impl Totals {
     /// Add the [`File`] statistics to the totals accumulator
     pub(crate) fn add(&mut self, file: &File) {
-        self.files += 1;
+        self.files += file.count;
         self.lines += file.lines;
         self.words += file.words;
         self.chars += file.chars;
