@@ -46,7 +46,7 @@ impl DelimiterFormatter<'_> {
     {
         let options = [
             config.language,
-            config.path,
+            config.files,
             config.lines,
             config.words,
             config.chars,
@@ -60,8 +60,13 @@ impl DelimiterFormatter<'_> {
     }
 
     fn build_header(&self, config: &Config) -> String {
+        let files: &str = if config.group_by_language {
+            "Files"
+        } else {
+            "Path"
+        };
         self.selected_columns(
-            ["Language", "Path", "Lines", "Words", "Chars", "Bytes"].map(String::from),
+            ["Language", files, "Lines", "Words", "Chars", "Bytes"].map(String::from),
             config,
         )
         .join(self.delimiter)
@@ -75,9 +80,13 @@ impl DelimiterFormatter<'_> {
             cols.push(file.language.to_string());
         }
 
-        if config.path {
-            let path = path::display(&file.path);
-            cols.push(path);
+        if config.files {
+            let file = if config.group_by_language {
+                file.count.to_string()
+            } else {
+                path::display(&file.path)
+            };
+            cols.push(file);
         }
 
         if config.lines {
@@ -103,7 +112,7 @@ impl DelimiterFormatter<'_> {
         self.selected_columns(
             [
                 "Total".to_string(),
-                "".to_string(),
+                results.total.files.to_string(),
                 results.total.lines.to_string(),
                 results.total.words.to_string(),
                 results.total.chars.to_string(),

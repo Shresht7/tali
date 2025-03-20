@@ -51,7 +51,7 @@ impl TableFormatter {
     {
         let options = [
             config.language,
-            config.path,
+            config.files,
             config.lines,
             config.words,
             config.chars,
@@ -66,9 +66,14 @@ impl TableFormatter {
     }
 
     fn build_header(&self, config: &Config) -> Vec<String> {
+        let files: &str = if config.group_by_language {
+            "Files"
+        } else {
+            "Path"
+        };
         self.selected_columns(
             [
-                "Language", "Path", "Lines", "Words", "Chars", "Bytes", "Graph",
+                "Language", files, "Lines", "Words", "Chars", "Bytes", "Graph",
             ]
             .map(String::from),
             config,
@@ -87,9 +92,13 @@ impl TableFormatter {
             cols.push(lang);
         }
 
-        if config.path {
-            let path = path::display(&file.path);
-            cols.push(path);
+        if config.files {
+            let file = if config.group_by_language {
+                file.count.to_string()
+            } else {
+                path::display(&file.path)
+            };
+            cols.push(file);
         }
 
         if config.lines {
@@ -150,7 +159,7 @@ impl TableFormatter {
         self.selected_columns(
             [
                 "Total".to_string(),
-                "".to_string(),
+                results.total.files.to_string(),
                 results.total.lines.to_string(),
                 results.total.words.to_string(),
                 results.total.chars.to_string(),
@@ -161,10 +170,15 @@ impl TableFormatter {
     }
 
     fn build_alignments(&self, config: &Config) -> Vec<Alignment> {
+        let files_alignment = if config.group_by_language {
+            Alignment::Right
+        } else {
+            Alignment::Left
+        };
         self.selected_columns(
             [
                 Alignment::Right,
-                Alignment::Left,
+                files_alignment,
                 Alignment::Right,
                 Alignment::Right,
                 Alignment::Right,
