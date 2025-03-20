@@ -25,6 +25,14 @@ impl Totals {
         self.chars += file.chars;
         self.bytes += file.bytes;
     }
+
+    pub(crate) fn merge(&mut self, rhs: &Totals) {
+        self.files += rhs.files;
+        self.lines += rhs.lines;
+        self.words += rhs.words;
+        self.chars += rhs.chars;
+        self.bytes += rhs.bytes;
+    }
 }
 
 /// Represents the max values for the number of lines, words, chars and bytes in [`ScanResults`]
@@ -43,5 +51,12 @@ impl Max {
         self.words = self.words.max(file.words);
         self.chars = self.chars.max(file.chars);
         self.bytes = self.bytes.max(file.bytes);
+    }
+
+    pub(crate) fn merge(&mut self, rhs: &Max) {
+        self.lines += rhs.lines;
+        self.words += rhs.words;
+        self.chars += rhs.chars;
+        self.bytes += rhs.bytes;
     }
 }
