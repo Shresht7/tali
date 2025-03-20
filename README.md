@@ -2,7 +2,7 @@
 
 A command-line application to count the number of lines, words, characters and bytes in a given set of files.
 
-TODO: Add a demo screenshot/gif
+![screenshot](./docs/screenshot-group.png)
 
 ## 🌟 Features
 
@@ -13,13 +13,9 @@ TODO: Add a demo screenshot/gif
 - **Visualization**: Displays a graphical measure of each file's size relative to the largest file.
 - **Group by Language**: Aggregate and group the results by language
 
-TODO: Review the features list
-
 ---
 
 ## 📦 Installation
-
-TODO
 
 ## 📘 Usage
 
@@ -31,7 +27,7 @@ tali path/to/directory
 
 By default, `tali` outputs the results in a tabular format with colors.
 
-TODO: Add a screenshot of the default output
+![screenshot](./docs/screenshot.png)
 
 The output can be configured using the various command-line arguments.
 
@@ -51,8 +47,6 @@ The output can be configured using the various command-line arguments.
 Use `--help` to get the full help for more details.
 
 ### Examples
-
-TODO: Fill out the examples
 
 #### Scan the current directory
 
