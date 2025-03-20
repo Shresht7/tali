@@ -164,6 +164,11 @@ impl Args {
             }
         }
 
+        // Enable `--graph` if `--graph-by` was provided
+        if !self.graph && self.graph_by.is_some() {
+            self.graph = true;
+        }
+
         self
     }
 }
