@@ -1,5 +1,3 @@
-use std::sync::{Arc, Mutex};
-
 use globset::GlobSet;
 use rayon::prelude::*;
 
@@ -144,12 +142,7 @@ impl Scanner {
         &self,
         paths: &[P],
     ) -> std::io::Result<ScanResults> {
-        // A vector to collect the files
-        let files = Arc::new(Mutex::new(Vec::new()));
-
-        // Accumulators
-        let total = Arc::new(Mutex::new(Totals::default()));
-        let max = Arc::new(Mutex::new(Max::default()));
+        let mut files: Vec<File> = Vec::new();
 
         for path in paths {
             let mut local_files = Vec::new();
@@ -182,50 +175,45 @@ impl Scanner {
                     let walker = self.configure_walker(path);
 
                     // Iterate over all the entries
-                    walker.into_iter().par_bridge().for_each(|result| {
-                        match result {
-                            Ok(entry) if entry.path().is_file() => {
-                                // Parse the file, accumulate stats, and add it to the collection
-                                if let Ok(file) = File::scan(entry.path()) {
-                                    let mut total_guard = total.lock().unwrap();
-                                    let mut max_guard = max.lock().unwrap();
-                                    let mut files_guard = files.lock().unwrap();
-
-                                    total_guard.add(&file);
-                                    max_guard.track(&file);
-                                    files_guard.push(file);
+                    let scanned_files: Vec<File> = walker
+                        .into_iter()
+                        .par_bridge()
+                        .filter_map(|result| {
+                            match result {
+                                // Scan files only
+                                Ok(entry) if entry.path().is_file() => {
+                                    File::scan(entry.path()).ok()
+                                }
+                                // Ignore directories and symlinks
+                                Ok(_) => None,
+                                // Report errors
+                                Err(e) => {
+                                    eprintln!("Error: {}", e);
+                                    None
                                 }
                             }
+                        })
+                        .collect();
 
-                            Ok(_) => {} // Ignore directories and symlinks
-                            Err(e) => eprintln!("Error: {}", e), // Report errors
-                        }
-                    });
+                    local_files.extend(scanned_files);
                 }
 
                 _ => {} // Ignore all other cases
             }
 
-            // Merge local results into global results safely
-            {
-                let mut files = files.lock().unwrap();
-                files.extend(local_files);
-            }
-            {
-                let mut total = total.lock().unwrap();
-                total.merge(&local_total);
-            }
-            {
-                let mut max = max.lock().unwrap();
-                max.merge(&local_max);
-            }
+            files.extend(local_files);
         }
 
-        Ok(ScanResults {
-            files: Arc::try_unwrap(files).unwrap().into_inner().unwrap(),
-            total: Arc::try_unwrap(total).unwrap().into_inner().unwrap(),
-            max: Arc::try_unwrap(max).unwrap().into_inner().unwrap(),
-        })
+        // Compute totals and max
+        let mut total = Totals::default();
+        let mut max = Max::default();
+        for file in &files {
+            total.add(file);
+            max.track(file);
+        }
+
+        // Return results
+        Ok(ScanResults { files, total, max })
     }
 
     /// Setup the walker with the provided configuration
