@@ -8,6 +8,10 @@ authors = ["Shresht7"]
 [lib]
 path = "src/lib/mod.rs"
 
+[[bench]]
+name = "scanner"
+harness = false
+
 [dependencies]
 clap = { version = "4.5.28", features = ["derive"] }
 globset = "0.4.16"
