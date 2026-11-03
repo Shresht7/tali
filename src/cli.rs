@@ -91,6 +91,10 @@ pub struct Args {
     #[clap(long)]
     pub exclude: Option<String>,
 
+    /// Run without parallelism
+    #[clap(long, alias = "serial")]
+    pub no_parallel: bool,
+
     // ** === TABLE OPTIONS === **
     /// Disable the header row
     #[clap(long, default_value_t = false)]
@@ -129,7 +133,7 @@ impl Args {
         }
 
         // If all the flags are false, then do nothing and just use the defaults
-        let show_all = vec![
+        let show_all = [
             self.language,
             self.lines,
             self.words,
@@ -138,7 +142,7 @@ impl Args {
             self.graph,
         ]
         .iter()
-        .all(|toggle| *toggle == false);
+        .all(|toggle| !*toggle);
 
         if show_all {
             self.language = true;
@@ -211,7 +215,8 @@ impl From<&Args> for Scanner {
         scanner
             .ignore_hidden(!args.hidden)
             .max_filesize(args.max_filesize)
-            .scan_depth(args.max_depth);
+            .scan_depth(args.max_depth)
+            .run_parallel(!args.no_parallel);
 
         if let Some(patterns) = &args.exclude {
             let exclude = build_glob_set(patterns);
@@ -222,7 +227,7 @@ impl From<&Args> for Scanner {
     }
 }
 
-fn build_glob_set(patterns: &String) -> GlobSet {
+fn build_glob_set(patterns: &str) -> GlobSet {
     let mut builder = GlobSetBuilder::new();
     for pattern in patterns.split(",") {
         if let Ok(glob) = Glob::new(pattern.trim()) {

@@ -38,12 +38,12 @@ impl ScanResults {
         let mut total = Totals::default();
         let mut max = Max::default();
         for lang in groups.keys() {
-            if let Some(v) = groups.get(lang) {
-                if let Some(file) = v.iter().cloned().reduce(|acc, e| acc + e) {
-                    total.add(&file);
-                    max.track(&file);
-                    files.push(file)
-                }
+            if let Some(v) = groups.get(lang)
+                && let Some(file) = v.iter().cloned().reduce(|acc, e| acc + e)
+            {
+                total.add(&file);
+                max.track(&file);
+                files.push(file)
             }
         }
         ScanResults { files, total, max }
@@ -64,10 +64,11 @@ impl ScanResults {
                 SortOrder::Ascending => a.chars.cmp(&b.chars),
                 SortOrder::Descending => b.chars.cmp(&a.chars),
             }),
-            Metric::Bytes | _ => self.files.sort_by(|a, b| match order {
+            Metric::Bytes => self.files.sort_by(|a, b| match order {
                 SortOrder::Ascending => a.bytes.cmp(&b.bytes),
                 SortOrder::Descending => b.bytes.cmp(&a.bytes),
             }),
+            _ => {}
         }
     }
 }

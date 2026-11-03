@@ -50,7 +50,7 @@ impl Columns {
             }
 
             for (i, cell) in row.iter().enumerate() {
-                self.widths[i] = self.widths[i].max(ansi::visible_width(&cell));
+                self.widths[i] = self.widths[i].max(ansi::visible_width(cell));
             }
         }
 
@@ -75,9 +75,9 @@ mod tests {
     #[test]
     fn test_mark_for_recalc() {
         let mut cols = Columns::default();
-        assert_eq!(cols.needs_recalculation, false);
+        assert!(!cols.needs_recalculation);
         cols.mark_for_recalc();
-        assert_eq!(cols.needs_recalculation, true);
+        assert!(cols.needs_recalculation);
     }
 
     #[test]
