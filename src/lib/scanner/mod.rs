@@ -158,3 +158,34 @@ impl Scanner {
         walker.build()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs;
+    use tempfile::tempdir;
+
+    #[test]
+    fn scan_parallel_matches_serial() {
+        let dir = tempdir().unwrap();
+
+        fs::write(dir.path().join("one.txt"), "hello world\n").unwrap();
+        fs::write(dir.path().join("two.txt"), "one two three\nfour\n").unwrap();
+
+        let paths = [dir.path()];
+
+        let serial = Scanner::new().scan(&paths).unwrap();
+        let parallel = Scanner::new().run_parallel(true).scan(&paths).unwrap();
+
+        assert_eq!(serial.total.files, parallel.total.files);
+        assert_eq!(serial.total.lines, parallel.total.lines);
+        assert_eq!(serial.total.words, parallel.total.words);
+        assert_eq!(serial.total.chars, parallel.total.chars);
+        assert_eq!(serial.total.bytes, parallel.total.bytes);
+
+        assert_eq!(serial.max.lines, parallel.max.lines);
+        assert_eq!(serial.max.words, parallel.max.words);
+        assert_eq!(serial.max.chars, parallel.max.chars);
+        assert_eq!(serial.max.bytes, parallel.max.bytes);
+    }
+}
