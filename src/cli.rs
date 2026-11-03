@@ -91,9 +91,9 @@ pub struct Args {
     #[clap(long)]
     pub exclude: Option<String>,
 
-    /// Parallelize scanning process
-    #[clap(long)]
-    pub parallel: bool,
+    /// Run without parallelism
+    #[clap(long, alias = "serial")]
+    pub no_parallel: bool,
 
     // ** === TABLE OPTIONS === **
     /// Disable the header row
@@ -216,7 +216,7 @@ impl From<&Args> for Scanner {
             .ignore_hidden(!args.hidden)
             .max_filesize(args.max_filesize)
             .scan_depth(args.max_depth)
-            .run_parallel(args.parallel);
+            .run_parallel(!args.no_parallel);
 
         if let Some(patterns) = &args.exclude {
             let exclude = build_glob_set(patterns);
