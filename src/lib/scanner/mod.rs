@@ -146,16 +146,12 @@ impl Scanner {
 
         for path in paths {
             let mut local_files = Vec::new();
-            let mut local_total = Totals::default();
-            let mut local_max = Max::default();
 
             match path {
                 // If the path is -, then scan STDIN
                 p if p.as_ref().to_str() == Some("-") => {
                     let reader = std::io::BufReader::new(std::io::stdin());
                     if let Ok(results) = File::scan_reader(reader) {
-                        local_total.add(&results);
-                        local_max.track(&results);
                         local_files.push(results);
                     }
                 }
@@ -163,8 +159,6 @@ impl Scanner {
                 // If path points to a file, then parse the file, accumulate stats, and add to the collection
                 p if p.as_ref().is_file() => {
                     if let Ok(file) = File::scan(path) {
-                        local_total.add(&file);
-                        local_max.track(&file);
                         local_files.push(file);
                     }
                 }
