@@ -188,4 +188,35 @@ mod tests {
         assert_eq!(serial.max.chars, parallel.max.chars);
         assert_eq!(serial.max.bytes, parallel.max.bytes);
     }
+
+    #[test]
+    fn scan_parallel_respects_exclusions() {
+        let dir = tempdir().unwrap();
+
+        fs::write(dir.path().join("include.txt"), "keep me\n").unwrap();
+        fs::write(dir.path().join("exclude.log"), "ignore me\n").unwrap();
+
+        let paths = [dir.path()];
+
+        let exclude_glob = globset::Glob::new("*.log").unwrap();
+        let exclude_globset = globset::GlobSetBuilder::new()
+            .add(exclude_glob)
+            .build()
+            .unwrap();
+
+        let serial = Scanner::new()
+            .exclude(exclude_globset.clone())
+            .scan(&paths)
+            .unwrap();
+
+        let parallel = Scanner::new()
+            .run_parallel(true)
+            .exclude(exclude_globset)
+            .scan(&paths)
+            .unwrap();
+
+        assert_eq!(serial.total.files, 1);
+        assert_eq!(parallel.total.files, 1);
+        assert_eq!(serial.total.bytes, parallel.total.bytes);
+    }
 }
