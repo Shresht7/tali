@@ -66,20 +66,8 @@ impl Scanner {
         self
     }
 
+    /// Scan the given paths and return results as [`ScanResults`]
     pub fn scan<P: AsRef<std::path::Path>>(&self, paths: &[P]) -> std::io::Result<ScanResults> {
-        if self.parallel {
-            self.scan_parallel(paths)
-        } else {
-            self.scan_serial(paths)
-        }
-    }
-
-    /// Scan the given [`paths`][std::path::Path] and record [file information][File] such as the line, word, character, and byte counts for each file.
-    pub fn scan_serial<P: AsRef<std::path::Path>>(
-        &self,
-        paths: &[P],
-    ) -> std::io::Result<ScanResults> {
-        // A vector to collect the files
         let mut files = Vec::new();
 
         for path in paths {
@@ -101,23 +89,7 @@ impl Scanner {
 
                 // If path points to a directory, then walk the directory accumulating stats, and add them to the collection
                 p if p.as_ref().is_dir() => {
-                    // Build a directory walker that respects `.gitignore` and other hidden files
-                    let walker = self.configure_walker(path);
-
-                    // Iterate over all the entries
-                    for result in walker {
-                        match result {
-                            Ok(entry) if entry.path().is_file() => {
-                                // Parse the file, accumulate stats, and add it to the collection
-                                if let Ok(file) = File::scan(entry.path()) {
-                                    files.push(file);
-                                }
-                            }
-
-                            Ok(_) => {} // Ignore directories and symlinks
-                            Err(e) => eprintln!("Error: {}", e), // Report errors
-                        }
-                    }
+                    files.extend(self.scan_directory(path));
                 }
 
                 _ => {} // Ignore all other cases
@@ -129,70 +101,26 @@ impl Scanner {
         Ok(ScanResults { files, total, max })
     }
 
-    /// Scan the given [`paths`][std::path::Path] and record [file information][File] such as the line, word, character, and byte counts for each file.
-    pub fn scan_parallel<P: AsRef<std::path::Path>>(
-        &self,
-        paths: &[P],
-    ) -> std::io::Result<ScanResults> {
-        let mut files: Vec<File> = Vec::new();
-
-        for path in paths {
-            let mut local_files = Vec::new();
-
-            match path {
-                // If the path is -, then scan STDIN
-                p if p.as_ref().to_str() == Some("-") => {
-                    let reader = std::io::BufReader::new(std::io::stdin());
-                    if let Ok(results) = File::scan_reader(reader) {
-                        local_files.push(results);
-                    }
-                }
-
-                // If path points to a file, then parse the file, accumulate stats, and add to the collection
-                p if p.as_ref().is_file() => {
-                    if let Ok(file) = File::scan(path) {
-                        local_files.push(file);
-                    }
-                }
-
-                // If path points to a directory, then walk the directory accumulating stats, and add them to the collection
-                p if p.as_ref().is_dir() => {
-                    // Build a directory walker that respects `.gitignore` and other hidden files
-                    let walker = self.configure_walker(path);
-
-                    // Iterate over all the entries
-                    let scanned_files: Vec<File> = walker
-                        .into_iter()
-                        .par_bridge()
-                        .filter_map(|result| {
-                            match result {
-                                // Scan files only
-                                Ok(entry) if entry.path().is_file() => {
-                                    File::scan(entry.path()).ok()
-                                }
-                                // Ignore directories and symlinks
-                                Ok(_) => None,
-                                // Report errors
-                                Err(e) => {
-                                    eprintln!("Error: {}", e);
-                                    None
-                                }
-                            }
-                        })
-                        .collect();
-
-                    local_files.extend(scanned_files);
-                }
-
-                _ => {} // Ignore all other cases
-            }
-
-            files.extend(local_files);
+    /// Scan a directory for [files][File]
+    fn scan_directory<P: AsRef<std::path::Path>>(&self, path: P) -> Vec<File> {
+        let walker = self.configure_walker(path);
+        if self.parallel {
+            walker.par_bridge().filter_map(Self::scan_entry).collect()
+        } else {
+            walker.filter_map(Self::scan_entry).collect()
         }
+    }
 
-        // Return the aggregated results
-        let (total, max) = Self::aggregate(&files);
-        Ok(ScanResults { files, total, max })
+    /// Scan a single entry and return a [`File`] if valid
+    fn scan_entry(result: Result<ignore::DirEntry, ignore::Error>) -> Option<File> {
+        match result {
+            Ok(entry) if entry.path().is_file() => File::scan(entry.path()).ok(),
+            Err(e) => {
+                eprintln!("Error: {}", e);
+                None
+            }
+            _ => None,
+        }
     }
 
     /// Aggregate [totals][Totals] and [max][Max] from a list of files
