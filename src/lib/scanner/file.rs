@@ -94,22 +94,39 @@ impl File {
     /// # Errors
     ///
     /// Returns an error if we fail to [read][BufRead::lines] a line from the [reader][BufRead]
-    pub fn scan_reader<R: BufRead>(reader: R) -> std::io::Result<File> {
+    pub fn scan_reader<R: BufRead>(mut reader: R) -> std::io::Result<File> {
         // Setup the counter
         let mut lines = 0;
         let mut words = 0;
         let mut chars = 0;
         let mut bytes = 0;
 
-        // Process each line...
-        for line in reader.lines() {
-            let line = line?; // Propagate error up, if any
-            lines += 1; // Increment the line count
-            words += line.split_whitespace().count(); // Increment the word count
-            chars += line.chars().count(); // Increment the characters count
-            bytes += line.len() as u64; // Increment the number of bytes by adding the length
+        let mut buffer = String::new();
+
+        loop {
+            buffer.clear(); // clear buffer for next line
+
+            // Read a line into the buffer
+            let bytes_read = reader.read_line(&mut buffer)?;
+            if bytes_read == 0 {
+                break; // EOF reached
+            }
+
+            // Count the bytes and lines
+            bytes += bytes_read as u64;
+            lines += 1;
+
+            // Strip the newline characters
+            let content = if let Some(without_lf) = buffer.strip_suffix('\n') {
+                without_lf.strip_suffix('\r').unwrap_or(without_lf)
+            } else {
+                &buffer
+            };
+
+            // Count words and chars in the line
+            words += content.split_whitespace().count();
+            chars += content.chars().count();
         }
-        bytes += (lines as u64) - 1; // Adjust the number of bytes to account for the missing \n (consumed by reader.lines()) and remove trailing \n
 
         let path = std::path::Path::new("STDIN").to_path_buf();
         let language = Language::Text; // Default to plain-text for now.
@@ -205,6 +222,38 @@ mod tests {
         assert_eq!(metrics.chars, 40, "Character count mismatch");
         assert_eq!(metrics.bytes, contents.len() as u64, "Byte count mismatch");
         assert_eq!(metrics.language, Language::Text, "Language mismatch");
+    }
+
+    #[test]
+    fn test_scan_reader_empty_input() {
+        let reader = std::io::Cursor::new("");
+        let metrics = File::scan_reader(reader).unwrap();
+        assert_eq!(metrics.lines, 0);
+        assert_eq!(metrics.words, 0);
+        assert_eq!(metrics.chars, 0);
+        assert_eq!(metrics.bytes, 0);
+    }
+
+    #[test]
+    fn test_scan_reader_crlf() {
+        let contents = "Hello\r\nWorld\r\n";
+        let reader = std::io::Cursor::new(contents);
+        let metrics = File::scan_reader(reader).unwrap();
+        assert_eq!(metrics.lines, 2);
+        assert_eq!(metrics.words, 2);
+        assert_eq!(metrics.chars, 10);
+        assert_eq!(metrics.bytes, contents.len() as u64);
+    }
+
+    #[test]
+    fn test_scan_reader_trailing_newline() {
+        let contents = "Hello\nWorld\n";
+        let reader = std::io::Cursor::new(contents);
+        let metrics = File::scan_reader(reader).unwrap();
+        assert_eq!(metrics.lines, 2);
+        assert_eq!(metrics.words, 2);
+        assert_eq!(metrics.chars, 10);
+        assert_eq!(metrics.bytes, contents.len() as u64);
     }
 
     #[test]
