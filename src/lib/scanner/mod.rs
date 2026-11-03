@@ -82,18 +82,12 @@ impl Scanner {
         // A vector to collect the files
         let mut files = Vec::new();
 
-        // Accumulators
-        let mut total = Totals::default();
-        let mut max = Max::default();
-
         for path in paths {
             match path {
                 // If the path is -, then scan STDIN
                 p if p.as_ref().to_str() == Some("-") => {
                     let reader = std::io::BufReader::new(std::io::stdin());
                     if let Ok(results) = File::scan_reader(reader) {
-                        total.add(&results);
-                        max.track(&results);
                         files.push(results);
                     }
                 }
@@ -101,8 +95,6 @@ impl Scanner {
                 // If path points to a file, then parse the file, accumulate stats, and add to the collection
                 p if p.as_ref().is_file() => {
                     if let Ok(file) = File::scan(path) {
-                        total.add(&file);
-                        max.track(&file);
                         files.push(file);
                     }
                 }
@@ -118,8 +110,6 @@ impl Scanner {
                             Ok(entry) if entry.path().is_file() => {
                                 // Parse the file, accumulate stats, and add it to the collection
                                 if let Ok(file) = File::scan(entry.path()) {
-                                    total.add(&file);
-                                    max.track(&file);
                                     files.push(file);
                                 }
                             }
@@ -134,6 +124,8 @@ impl Scanner {
             }
         }
 
+        // Return the aggregated results
+        let (total, max) = Self::aggregate(&files);
         Ok(ScanResults { files, total, max })
     }
 
@@ -198,16 +190,20 @@ impl Scanner {
             files.extend(local_files);
         }
 
-        // Compute totals and max
+        // Return the aggregated results
+        let (total, max) = Self::aggregate(&files);
+        Ok(ScanResults { files, total, max })
+    }
+
+    /// Aggregate [totals][Totals] and [max][Max] from a list of files
+    fn aggregate(files: &[File]) -> (Totals, Max) {
         let mut total = Totals::default();
         let mut max = Max::default();
-        for file in &files {
+        for file in files {
             total.add(file);
             max.track(file);
         }
-
-        // Return results
-        Ok(ScanResults { files, total, max })
+        (total, max)
     }
 
     /// Setup the walker with the provided configuration
