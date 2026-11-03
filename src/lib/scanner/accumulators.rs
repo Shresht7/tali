@@ -25,14 +25,6 @@ impl Totals {
         self.chars += file.chars;
         self.bytes += file.bytes;
     }
-
-    pub(crate) fn merge(&mut self, rhs: &Totals) {
-        self.files += rhs.files;
-        self.lines += rhs.lines;
-        self.words += rhs.words;
-        self.chars += rhs.chars;
-        self.bytes += rhs.bytes;
-    }
 }
 
 /// Represents the max values for the number of lines, words, chars and bytes in [`ScanResults`]
@@ -52,60 +44,56 @@ impl Max {
         self.chars = self.chars.max(file.chars);
         self.bytes = self.bytes.max(file.bytes);
     }
-
-    /// Merge with another [Max] accumulator by taking the max values for each field
-    pub(crate) fn merge(&mut self, rhs: &Max) {
-        self.lines = self.lines.max(rhs.lines);
-        self.words = self.words.max(rhs.words);
-        self.chars = self.chars.max(rhs.chars);
-        self.bytes = self.bytes.max(rhs.bytes);
-    }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::helpers::language::Language;
 
     #[test]
-    fn test_max_merge() {
-        let mut lhs = Max {
-            lines: 5,
-            words: 3,
-            chars: 10,
-            bytes: 20,
-        };
-
-        let rhs = Max {
-            lines: 6,
+    fn test_totals_add() {
+        let mut totals = Totals::default();
+        let file = File {
+            path: "file".into(),
+            lines: 1,
             words: 2,
-            chars: 12,
-            bytes: 15,
+            chars: 3,
+            bytes: 4,
+            language: Language::Unknown("".into()),
         };
-
-        lhs.merge(&rhs);
-
-        assert_eq!(lhs.lines, 6);
-        assert_eq!(lhs.words, 3);
-        assert_eq!(lhs.chars, 12);
-        assert_eq!(lhs.bytes, 20);
+        totals.add(&file);
+        assert_eq!(totals.lines, 1);
+        assert_eq!(totals.words, 2);
+        assert_eq!(totals.chars, 3);
+        assert_eq!(totals.bytes, 4);
+        assert_eq!(totals.files, 1);
     }
 
     #[test]
-    fn test_max_merge_with_default() {
-        let mut lhs = Max::default();
-
-        let rhs = Max {
-            lines: 10,
-            words: 20,
-            chars: 30,
-            bytes: 40,
+    fn test_max_track() {
+        let mut max = Max::default();
+        let file1 = File {
+            path: "file1".into(),
+            lines: 1,
+            words: 3,
+            chars: 7,
+            bytes: 9,
+            language: Language::Unknown("".into()),
         };
-
-        lhs.merge(&rhs);
-
-        assert_eq!(lhs.lines, 10);
-        assert_eq!(lhs.words, 20);
-        assert_eq!(lhs.chars, 30);
-        assert_eq!(lhs.bytes, 40);
+        let file2 = File {
+            path: "file2".into(),
+            lines: 3,
+            words: 12,
+            chars: 4,
+            bytes: 21,
+            language: Language::Unknown("".into()),
+        };
+        max.track(&file1);
+        max.track(&file2);
+        assert_eq!(max.lines, 3);
+        assert_eq!(max.words, 12);
+        assert_eq!(max.chars, 7);
+        assert_eq!(max.bytes, 21);
     }
 }
