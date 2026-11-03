@@ -53,10 +53,59 @@ impl Max {
         self.bytes = self.bytes.max(file.bytes);
     }
 
+    /// Merge with another [Max] accumulator by taking the max values for each field
     pub(crate) fn merge(&mut self, rhs: &Max) {
-        self.lines += rhs.lines;
-        self.words += rhs.words;
-        self.chars += rhs.chars;
-        self.bytes += rhs.bytes;
+        self.lines = self.lines.max(rhs.lines);
+        self.words = self.words.max(rhs.words);
+        self.chars = self.chars.max(rhs.chars);
+        self.bytes = self.bytes.max(rhs.bytes);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_max_merge() {
+        let mut lhs = Max {
+            lines: 5,
+            words: 3,
+            chars: 10,
+            bytes: 20,
+        };
+
+        let rhs = Max {
+            lines: 6,
+            words: 2,
+            chars: 12,
+            bytes: 15,
+        };
+
+        lhs.merge(&rhs);
+
+        assert_eq!(lhs.lines, 6);
+        assert_eq!(lhs.words, 3);
+        assert_eq!(lhs.chars, 12);
+        assert_eq!(lhs.bytes, 20);
+    }
+
+    #[test]
+    fn test_max_merge_with_default() {
+        let mut lhs = Max::default();
+
+        let rhs = Max {
+            lines: 10,
+            words: 20,
+            chars: 30,
+            bytes: 40,
+        };
+
+        lhs.merge(&rhs);
+
+        assert_eq!(lhs.lines, 10);
+        assert_eq!(lhs.words, 20);
+        assert_eq!(lhs.chars, 30);
+        assert_eq!(lhs.bytes, 40);
     }
 }
