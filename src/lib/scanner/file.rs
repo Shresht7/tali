@@ -133,7 +133,7 @@ impl std::ops::Add for File {
             path: rhs.path.clone(),
             lines: self.lines + rhs.lines,
             words: self.words + rhs.words,
-            chars: self.chars + rhs.words,
+            chars: self.chars + rhs.chars,
             bytes: self.bytes + rhs.bytes,
             language: rhs.language.clone(),
             count: self.count + rhs.count,
@@ -205,5 +205,33 @@ mod tests {
         assert_eq!(metrics.chars, 40, "Character count mismatch");
         assert_eq!(metrics.bytes, contents.len() as u64, "Byte count mismatch");
         assert_eq!(metrics.language, Language::Text, "Language mismatch");
+    }
+
+    #[test]
+    fn test_file_add_metric() {
+        let lhs = File {
+            path: "lhs.rs".into(),
+            lines: 2,
+            words: 3,
+            chars: 20,
+            bytes: 30,
+            language: Language::Rust,
+        };
+
+        let rhs = File {
+            path: "rhs.rs".into(),
+            lines: 1,
+            words: 2,
+            chars: 10,
+            bytes: 10,
+            language: Language::Rust,
+        };
+
+        let total = lhs + rhs;
+
+        assert_eq!(total.lines, 3);
+        assert_eq!(total.words, 5);
+        assert_eq!(total.chars, 30);
+        assert_eq!(total.bytes, 40);
     }
 }
