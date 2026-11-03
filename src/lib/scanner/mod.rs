@@ -148,10 +148,7 @@ impl Scanner {
         if let Some(exclude) = self.exclude.clone() {
             walker.filter_entry(move |entry| {
                 let path = helpers::path::display(entry.path());
-                if exclude.is_match(path) {
-                    return false;
-                }
-                return true;
+                !exclude.is_match(path)
             });
         }
 

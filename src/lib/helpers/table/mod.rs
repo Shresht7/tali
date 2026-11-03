@@ -78,7 +78,7 @@ impl Table {
             .map(|w| sep_v.repeat(*w))
             .collect::<Vec<_>>()
             .join(&sep_v.repeat(sep_h.len()))
-            + &sep_v
+            + sep_v
             + "\n"
     }
 
@@ -90,16 +90,15 @@ impl Table {
         } else {
             width
         };
-        let res = match alignment {
+        match alignment {
             Some(&Alignment::Left) | None => format!("{:<width$}", text, width = width),
             Some(&Alignment::Center) => format!("{:^width$}", text, width = width),
             Some(&Alignment::Right) => format!("{:>width$}", text, width = width),
-        };
-        res
+        }
     }
 
     /// Formats a row of data for display
-    fn format_row(&self, row: &Vec<String>) -> String {
+    fn format_row(&self, row: &[String]) -> String {
         let mut res = String::new();
         for (i, cell) in row.iter().enumerate() {
             res.push_str(&self.format_cell(
@@ -109,7 +108,7 @@ impl Table {
             ));
             res.push_str(&self.separator.horizontal);
         }
-        res.push_str("\n");
+        res.push('\n');
         res
     }
 

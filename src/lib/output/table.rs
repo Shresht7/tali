@@ -17,7 +17,7 @@ impl Formatter for TableFormatter {
         let mut res = String::new();
 
         for file in &results.files {
-            res.push_str(&self.build_row(file, &results, config));
+            res.push_str(&self.build_row(file, results, config));
         }
 
         let mut table = Table::from_tsv(&res);
@@ -28,7 +28,7 @@ impl Formatter for TableFormatter {
         }
 
         if config.footer {
-            let footer = self.build_footer(&results, config);
+            let footer = self.build_footer(results, config);
             table.with_footer(footer);
         }
 
@@ -140,19 +140,18 @@ impl TableFormatter {
             Metric::Chars => {
                 (file.chars as f64 / results.max.chars as f64 * max_length as f64).round()
             }
-            Metric::Bytes | _ => {
+            Metric::Bytes => {
                 (file.bytes as f64 / results.max.bytes as f64 * max_length as f64).round()
             }
+            _ => 0.0,
         } as usize;
 
         let bar = fill.repeat(bar_length) + &blank.repeat(max_length - bar_length);
-        let bar = if config.use_colors {
+        if config.use_colors {
             color(&file.language, &bar)
         } else {
             bar
-        };
-
-        bar
+        }
     }
 
     fn build_footer(&self, results: &ScanResults, config: &Config) -> Vec<String> {

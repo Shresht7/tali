@@ -9,6 +9,7 @@ macro_rules! define_languages {
         $(with RGB($colorR:expr, $colorG:expr, $colorB:expr))?      // Matches: with RGB(255, 165, 0)   | RGB color for the language
     ),* $(,)? ) => {                                                // Matches: ,                       | Optional trailing comma
         #[derive(Debug, Serialize, Clone, PartialEq, Eq, Hash)]
+        #[allow(clippy::upper_case_acronyms)]
         pub enum Language {
             $($language),*,
             Unknown(String),

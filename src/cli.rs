@@ -133,7 +133,7 @@ impl Args {
         }
 
         // If all the flags are false, then do nothing and just use the defaults
-        let show_all = vec![
+        let show_all = [
             self.language,
             self.lines,
             self.words,
@@ -142,7 +142,7 @@ impl Args {
             self.graph,
         ]
         .iter()
-        .all(|toggle| *toggle == false);
+        .all(|toggle| !*toggle);
 
         if show_all {
             self.language = true;
@@ -227,7 +227,7 @@ impl From<&Args> for Scanner {
     }
 }
 
-fn build_glob_set(patterns: &String) -> GlobSet {
+fn build_glob_set(patterns: &str) -> GlobSet {
     let mut builder = GlobSetBuilder::new();
     for pattern in patterns.split(",") {
         if let Ok(glob) = Glob::new(pattern.trim()) {
