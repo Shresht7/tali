@@ -61,6 +61,7 @@ mod tests {
             chars: 3,
             bytes: 4,
             language: Language::Unknown("".into()),
+            count: 1,
         };
         totals.add(&file);
         assert_eq!(totals.lines, 1);
@@ -80,6 +81,7 @@ mod tests {
             chars: 7,
             bytes: 9,
             language: Language::Unknown("".into()),
+            count: 1,
         };
         let file2 = File {
             path: "file2".into(),
@@ -88,6 +90,7 @@ mod tests {
             chars: 4,
             bytes: 21,
             language: Language::Unknown("".into()),
+            count: 1,
         };
         max.track(&file1);
         max.track(&file2);

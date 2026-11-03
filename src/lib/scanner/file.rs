@@ -265,6 +265,7 @@ mod tests {
             chars: 20,
             bytes: 30,
             language: Language::Rust,
+            count: 1,
         };
 
         let rhs = File {
@@ -274,6 +275,7 @@ mod tests {
             chars: 10,
             bytes: 10,
             language: Language::Rust,
+            count: 1,
         };
 
         let total = lhs + rhs;
