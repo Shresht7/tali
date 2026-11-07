@@ -17,6 +17,14 @@ A command-line application to count the number of lines, words, characters and b
 
 ## 📦 Installation
 
+Download the archive for your platform from the [latest release](https://github.com/Shresht7/tali/releases/latest):
+
+- Linux (x86_64): `tali-x86_64-unknown-linux-gnu.tar.gz`
+- macOS (Intel): `tali-x86_64-apple-darwin.tar.gz`
+- Windows (x86_64): `tali-x86_64-pc-windows-msvc.zip`
+
+Each archive contains the executable, this README, and the MIT license. Extract it and run `tali` (or `tali.exe` on Windows); no renaming is needed. To use it from any directory, add the extracted executable's location to your `PATH`.
+
 ## 📘 Usage
 
 Run `tali` by specifying one or more files or directories to scan:
