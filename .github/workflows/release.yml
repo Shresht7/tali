@@ -18,7 +18,7 @@ jobs:
             binary: tali.exe
           - os: macos-latest
             target: x86_64-apple-darwin
-            binary: matrixfall
+            binary: tali
 
     runs-on: ${{ matrix.os }}
     permissions:
