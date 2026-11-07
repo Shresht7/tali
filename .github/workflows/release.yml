@@ -1,0 +1,68 @@
+name: GitHub Release
+
+on:
+  push:
+    tags: ["v*"]
+
+jobs:
+  build:
+    name: $${{ matrix.target }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            binary: tali
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            binary: tali.exe
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            binary: matrixfall
+
+    runs-on: ${{ matrix.os }}
+    permissions:
+      id-token: write
+      attestations: write
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Build
+        run: cargo build --release
+
+      - name: Generate Provenance
+        uses: actions/attest-build-provenance@v4
+        with:
+          subject-path: target/release/${{ matrix.binary }}
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: ${{ matrix.target }}
+          path: target/release/${{ matrix.binary }}
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Download All Artifacts
+        uses: actions/download-artifact@v8.0.1
+        with:
+          path: artifacts
+
+      - name: Create Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            artifacts/x86_64-unknown-linux-gnu/tali \
+            artifacts/x86_64-pc-windows-msvc/tali.exe \
+            artifacts/x86_64-apple-darwin/tali \
+            --generate-notes \
+            --title "${{ github.ref_name }}"
