@@ -4,6 +4,11 @@ description = "Count the number of lines, words, and bytes"
 version = "0.2.0"
 edition = "2024"
 authors = ["Shresht7"]
+license = "MIT"
+homepage = "https://github.com/Shresht7/tali"
+keywords = ["cli", "count", "loc", "lines-of-code", "tali"]
+categories = ["command-line-utilities"]
+exclude = [".github/*", ".vscode/*"]
 
 [lib]
 path = "src/lib/mod.rs"
