@@ -17,6 +17,14 @@ A command-line application to count the number of lines, words, characters and b
 
 ## 📦 Installation
 
+Install with Cargo:
+
+```sh
+cargo install tali
+```
+
+Prebuilt binaries are available on the [releases page](https://github.com/Shresht7/tali/releases). If you download one, add the extracted executable's location to your `PATH`.
+
 ## 📘 Usage
 
 Run `tali` by specifying one or more files or directories to scan:
