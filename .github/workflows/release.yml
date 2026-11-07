@@ -56,9 +56,7 @@ jobs:
         with:
           path: artifacts
 
-      - name: Create Release
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Package Release Archives
         run: |
           mkdir -p packages/linux packages/windows packages/macos release-assets
           cp artifacts/x86_64-unknown-linux-gnu/tali packages/linux/tali
@@ -73,6 +71,11 @@ jobs:
             packages/windows/tali.exe packages/windows/README.md packages/windows/LICENSE
           tar -czf release-assets/tali-x86_64-apple-darwin.tar.gz \
             -C packages/macos tali README.md LICENSE
+
+      - name: Create Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
           gh release create "${{ github.ref_name }}" \
             release-assets/tali-x86_64-unknown-linux-gnu.tar.gz \
             release-assets/tali-x86_64-pc-windows-msvc.zip \
